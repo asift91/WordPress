@@ -55,6 +55,8 @@ function get_setup_params_from_configs_json
     export wpDbUserPass=$(echo $json | jq -r .applicationProfile.wpDbUserPass)
     export wpVersion=$(echo $json | jq -r .applicationProfile.wpVersion)
     export sshUsername=$(echo $json | jq -r .applicationProfile.sshUsername)
+    export storageAccountType=$(echo $json | jq -r .moodleProfile.storageAccountType)
+    export fileServerDiskSize=$(echo $json | jq -r .fileServerProfile.fileServerDiskSize)
 }
 
 function get_php_version {
@@ -277,12 +279,14 @@ function create_azure_files_share
     local storageAccountName=$2
     local storageAccountKey=$3
     local logFilePath=$4
+    local fileServerDiskSize=$5
 
     az storage share create \
         --name $shareName \
         --account-name $storageAccountName \
         --account-key $storageAccountKey \
-        --fail-on-exist >> $logFilePath
+        --fail-on-exist >> $logFilePath \
+        --quota $fileServerDiskSize
 }
 
 function setup_and_mount_gluster_share

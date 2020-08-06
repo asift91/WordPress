@@ -30,36 +30,38 @@ set -ex
 
     get_setup_params_from_configs_json $lamp_on_azure_configs_json_path || exit 99
 
-    echo $glusterNode          >> /tmp/vars.txt
-    echo $glusterVolume        >> /tmp/vars.txt
-    echo $siteFQDN             >> /tmp/vars.txt
-    echo $httpsTermination     >> /tmp/vars.txt
-    echo $dbIP                 >> /tmp/vars.txt
-    echo $adminpass            >> /tmp/vars.txt
-    echo $dbadminlogin         >> /tmp/vars.txt
-    echo $dbadminloginazure    >> /tmp/vars.txt
-    echo $dbadminpass          >> /tmp/vars.txt
-    echo $storageAccountName   >> /tmp/vars.txt
-    echo $storageAccountKey    >> /tmp/vars.txt
-    echo $redisDeploySwitch    >> /tmp/vars.txt
-    echo $redisDns             >> /tmp/vars.txt
-    echo $redisAuth            >> /tmp/vars.txt
-    echo $dbServerType                >> /tmp/vars.txt
-    echo $fileServerType              >> /tmp/vars.txt
-    echo $mssqlDbServiceObjectiveName >> /tmp/vars.txt
-    echo $mssqlDbEdition	>> /tmp/vars.txt
-    echo $mssqlDbSize	>> /tmp/vars.txt
-    echo $thumbprintSslCert >> /tmp/vars.txt
-    echo $thumbprintCaCert >> /tmp/vars.txt
-    echo $nfsByoIpExportPath >> /tmp/vars.txt
-    echo $phpVersion >> /tmp/vars.txt
-    echo $cmsApplication    >>/tmp/vars.txt
-    echo $lbDns             >>/tmp/vars.txt
-    echo $applicationDbName >>/tmp/vars.txt
-    echo $wpAdminPass       >>/tmp/vars.txt
-    echo $wpDbUserPass      >>/tmp/vars.txt
-    echo $wpVersion         >>/tmp/vars.txt
-    echo $sshUsername       >>/tmp/vars.txt
+    echo $glusterNode                   >> /tmp/vars.txt
+    echo $glusterVolume                 >> /tmp/vars.txt
+    echo $siteFQDN                      >> /tmp/vars.txt
+    echo $httpsTermination              >> /tmp/vars.txt
+    echo $dbIP                          >> /tmp/vars.txt
+    echo $adminpass                     >> /tmp/vars.txt
+    echo $dbadminlogin                  >> /tmp/vars.txt
+    echo $dbadminloginazure             >> /tmp/vars.txt
+    echo $dbadminpass                   >> /tmp/vars.txt
+    echo $storageAccountName            >> /tmp/vars.txt
+    echo $storageAccountKey             >> /tmp/vars.txt
+    echo $redisDeploySwitch             >> /tmp/vars.txt
+    echo $redisDns                      >> /tmp/vars.txt
+    echo $redisAuth                     >> /tmp/vars.txt
+    echo $dbServerType                  >> /tmp/vars.txt
+    echo $fileServerType                >> /tmp/vars.txt
+    echo $mssqlDbServiceObjectiveName   >> /tmp/vars.txt
+    echo $mssqlDbEdition	            >> /tmp/vars.txt
+    echo $mssqlDbSize	                >> /tmp/vars.txt
+    echo $thumbprintSslCert             >> /tmp/vars.txt
+    echo $thumbprintCaCert              >> /tmp/vars.txt
+    echo $nfsByoIpExportPath            >> /tmp/vars.txt
+    echo $phpVersion                    >> /tmp/vars.txt
+    echo $cmsApplication                >>/tmp/vars.txt
+    echo $lbDns                         >>/tmp/vars.txt
+    echo $applicationDbName             >>/tmp/vars.txt
+    echo $wpAdminPass                   >>/tmp/vars.txt
+    echo $wpDbUserPass                  >>/tmp/vars.txt
+    echo $wpVersion                     >>/tmp/vars.txt
+    echo $sshUsername                   >>/tmp/vars.txt
+    echo $storageAccountType >>/tmp/vars.txt
+    echo $fileServerDiskSize >>/tmp/vars.txt
 
     check_fileServerType_param $fileServerType
 
@@ -107,6 +109,17 @@ set -ex
         wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
         apt-get update
         apt-get install -y postgresql-client-9.6
+    fi
+    
+    if [ "$fileServerType" = "azurefiles" ]; then
+    # install azure cli & setup container
+        echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \
+            sudo tee /etc/apt/sources.list.d/azure-cli.list
+
+        curl -L https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add - >> /tmp/apt4.log
+        sudo apt-get -y install apt-transport-https >> /tmp/apt4.log
+        sudo apt-get -y update > /dev/null
+        sudo apt-get -y install azure-cli >> /tmp/apt4.log
     fi
 
     if [ $fileServerType = "gluster" ]; then
@@ -175,7 +188,7 @@ set -ex
         mv /azlamp /azlamp_old_delete_me
         # Then create the azlamp share
         echo -e '\n\rCreating an Azure Files share for azlamp'
-        create_azure_files_share azlamp $storageAccountName $storageAccountKey /tmp/wabs.log
+        create_azure_files_share azlamp $storageAccountName $storageAccountKey /tmp/wabs.log $fileServerDiskSize
         # Set up and mount Azure Files share. Must be done after nginx is installed because of www-data user/group
         echo -e '\n\rSetting up and mounting Azure Files share on //'$storageAccountName'.file.core.windows.net/azlamp on /azlamp\n\r'
         setup_and_mount_azure_files_share azlamp $storageAccountName $storageAccountKey
