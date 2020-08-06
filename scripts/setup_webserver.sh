@@ -22,11 +22,11 @@
 
 set -ex
 
-lamp_on_azure_configs_json_path=${1}
+wordpress_on_azure_configs_json_path=${1}
 
 . ./helper_functions.sh
 
-get_setup_params_from_configs_json $lamp_on_azure_configs_json_path || exit 99
+get_setup_params_from_configs_json $wordpress_on_azure_configs_json_path || exit 99
 
 echo $glusterNode         >> /tmp/vars.txt
 echo $glusterVolume       >> /tmp/vars.txt
@@ -84,26 +84,26 @@ check_fileServerType_param $fileServerType
   PhpVer=$(get_php_version)
 
   if [ $fileServerType = "gluster" ]; then
-    # Mount gluster fs for /azlamp
-    mkdir -p /azlamp
-    chown www-data /azlamp
-    chmod 770 /azlamp
+    # Mount gluster fs for /wordpress
+    mkdir -p /wordpress
+    chown www-data /wordpress
+    chmod 770 /wordpress
     echo -e 'Adding Gluster FS to /etc/fstab and mounting it'
-    setup_and_mount_gluster_share $glusterNode $glusterVolume /azlamp
+    setup_and_mount_gluster_share $glusterNode $glusterVolume /wordpress
   elif [ $fileServerType = "nfs" ]; then
     # mount NFS export (set up on controller VM--No HA)
-    echo -e '\n\rMounting NFS export from '$nfsVmName':/azlamp on /azlamp and adding it to /etc/fstab\n\r'
-    configure_nfs_client_and_mount $nfsVmName /azlamp /azlamp
+    echo -e '\n\rMounting NFS export from '$nfsVmName':/wordpress on /wordpress and adding it to /etc/fstab\n\r'
+    configure_nfs_client_and_mount $nfsVmName /wordpress /wordpress
   elif [ $fileServerType = "nfs-ha" ]; then
     # mount NFS-HA export
-    echo -e '\n\rMounting NFS export from '$nfsHaLbIP':'$nfsHaExportPath' on /azlamp and adding it to /etc/fstab\n\r'
-    configure_nfs_client_and_mount $nfsHaLbIP $nfsHaExportPath /azlamp
+    echo -e '\n\rMounting NFS export from '$nfsHaLbIP':'$nfsHaExportPath' on /wordpress and adding it to /etc/fstab\n\r'
+    configure_nfs_client_and_mount $nfsHaLbIP $nfsHaExportPath /wordpress
   elif [ $fileServerType = "nfs-byo" ]; then
     # mount NFS-BYO export
-    echo -e '\n\rMounting NFS export from '$nfsByoIpExportPath' on /azlamp and adding it to /etc/fstab\n\r'
-    configure_nfs_client_and_mount0 $nfsByoIpExportPath /azlamp
+    echo -e '\n\rMounting NFS export from '$nfsByoIpExportPath' on /wordpress and adding it to /etc/fstab\n\r'
+    configure_nfs_client_and_mount0 $nfsByoIpExportPath /wordpress
   else # "azurefiles"
-    setup_and_mount_azure_files_share azlamp $storageAccountName $storageAccountKey
+    setup_and_mount_azure_files_share wordpress $storageAccountName $storageAccountKey
   fi
 
   # Configure syslog to forward
@@ -172,7 +172,7 @@ EOF
   # Set up html dir local copy if specified
   if [ "$htmlLocalCopySwitch" = "true" ]; then
     mkdir -p /var/www/html
-    rsync -av --delete /azlamp/html/. /var/www/html
+    rsync -av --delete /wordpress/html/. /var/www/html
     setup_html_local_copy_cron_job
   fi
 
@@ -202,8 +202,8 @@ EOF
   # Remove the default nginx site
   rm -f /etc/nginx/sites-enabled/default
 
-  # update startup script to wait for certificate in /azlamp mount
-  setup_azlamp_mount_dependency_for_systemd_service nginx || exit 1
+  # update startup script to wait for certificate in /wordpress mount
+  setup_wordpress_mount_dependency_for_systemd_service nginx || exit 1
 
   # restart nginx
   systemctl restart nginx

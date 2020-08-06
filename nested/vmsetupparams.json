@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "lampCommon": {
+        "wpCommon": {
             "metadata": {
                 "description": "Common LAMP values"
             },
@@ -38,51 +38,51 @@
         "documentation01": "This sub-template doesn't create any Azure resource, but just constructs/returns a JSON object that'll be injected to controller & VMSS VMs (through cloud-init) so that VM setup custom script can read/use, instead of receiving these as a long list of cmdline args",
         "vmSetupParamsObj": {
             "siteProfile": {
-                "siteURL": "[parameters('lampCommon').siteURL]",
-                "httpsTermination": "[parameters('lampCommon').httpsTermination]",
-                "thumbprintSslCert": "[parameters('lampCommon').thumbprintSslCert]",
-                "thumbprintCaCert": "[parameters('lampCommon').thumbprintCaCert]"
+                "siteURL": "[parameters('wpCommon').siteURL]",
+                "httpsTermination": "[parameters('wpCommon').httpsTermination]",
+                "thumbprintSslCert": "[parameters('wpCommon').thumbprintSslCert]",
+                "thumbprintCaCert": "[parameters('wpCommon').thumbprintCaCert]"
             },
             "lampProfile": {
                 "storageAccountName": "[parameters('storageAccountName')]",
                 "storageAccountKey": "[parameters('storageAccountKey')]",
-                "redisDeploySwitch": "[parameters('lampCommon').redisDeploySwitch]",
-                "redisDns": "[parameters('lampCommon').redisDns]",
+                "redisDeploySwitch": "[parameters('wpCommon').redisDeploySwitch]",
+                "redisDns": "[parameters('wpCommon').redisDns]",
                 "redisKey": "[parameters('redisKey')]",
-                "syslogServer": "[parameters('lampCommon').ctlrVmName]",
-                "htmlLocalCopySwitch": "[parameters('lampCommon').htmlLocalCopySwitch]"
+                "syslogServer": "[parameters('wpCommon').ctlrVmName]",
+                "htmlLocalCopySwitch": "[parameters('wpCommon').htmlLocalCopySwitch]"
             },
             "dbServerProfile": {
-                "type": "[parameters('lampCommon').dbServerType]",
+                "type": "[parameters('wpCommon').dbServerType]",
                 "fqdn": "[parameters('dbFQDN')]",
-                "adminLogin": "[parameters('lampCommon').dbLogin]",
-                "adminLoginAzure": "[concat(parameters('lampCommon').dbLogin, '@', parameters('lampCommon').dbServerType, '-', parameters('lampCommon').resourcesPrefix)]",
-                "adminPassword": "[parameters('lampCommon').dbLoginPassword]",
-                "mssqlDbServiceObjectiveName": "[parameters('lampCommon').mssqlDbServiceObjectiveName]",
-                "mssqlDbEdition": "[parameters('lampCommon').mssqlDbEdition]",
-                "mssqlDbSize": "[parameters('lampCommon').mssqlDbSize]"
+                "adminLogin": "[parameters('wpCommon').dbLogin]",
+                "adminLoginAzure": "[concat(parameters('wpCommon').dbLogin, '@', parameters('wpCommon').dbServerType, '-', parameters('wpCommon').resourcesPrefix)]",
+                "adminPassword": "[parameters('wpCommon').dbLoginPassword]",
+                "mssqlDbServiceObjectiveName": "[parameters('wpCommon').mssqlDbServiceObjectiveName]",
+                "mssqlDbEdition": "[parameters('wpCommon').mssqlDbEdition]",
+                "mssqlDbSize": "[parameters('wpCommon').mssqlDbSize]"
             },
             "fileServerProfile": {
-                "type": "[parameters('lampCommon').fileServerType]",
-                "nfsVmName": "[parameters('lampCommon').ctlrVmName]",
-                "glusterVmName": "[concat(parameters('lampCommon').gfsNameRoot, '0')]",
+                "type": "[parameters('wpCommon').fileServerType]",
+                "nfsVmName": "[parameters('wpCommon').ctlrVmName]",
+                "glusterVmName": "[concat(parameters('wpCommon').gfsNameRoot, '0')]",
                 "glusterVolName": "data",
-                "nfsByoIpExportPath": "[parameters('lampCommon').nfsByoIpExportPath]",
-                "nfsHaLbIP": "[parameters('lampCommon').nfsHaLbIP]",
-                "nfsHaExportPath": "[parameters('lampCommon').nfsHaExportPath]",
-                "fileServerDiskSize": "[parameters('lampCommon').fileServerDiskSize]"
+                "nfsByoIpExportPath": "[parameters('wpCommon').nfsByoIpExportPath]",
+                "nfsHaLbIP": "[parameters('wpCommon').nfsHaLbIP]",
+                "nfsHaExportPath": "[parameters('wpCommon').nfsHaExportPath]",
+                "fileServerDiskSize": "[parameters('wpCommon').fileServerDiskSize]"
             },
             "phpProfile": {
-                "phpVersion": "[parameters('lampCommon').phpVersion]"
+                "phpVersion": "[parameters('wpCommon').phpVersion]"
             },
             "applicationProfile": {
-                "cmsApplication": "[parameters('lampCommon').CMSApplication]",
-                "lbDns": "[parameters('lampCommon').lbDns]",
-                "applicationDbName": "[parameters('lampCommon').applicationDbName]",
-                "wpAdminPass": "[parameters('lampCommon').wpAdminPass]",
-                "wpDbUserPass": "[parameters('lampCommon').wpDbUserPass]",
-                "wpVersion": "[parameters('lampCommon').wpVersion]",
-                "sshUsername": "[parameters('lampCommon').sshUsername]"
+                "cmsApplication": "[parameters('wpCommon').CMSApplication]",
+                "lbDns": "[parameters('wpCommon').lbDns]",
+                "applicationDbName": "[parameters('wpCommon').applicationDbName]",
+                "wpAdminPass": "[parameters('wpCommon').wpAdminPass]",
+                "wpDbUserPass": "[parameters('wpCommon').wpDbUserPass]",
+                "wpVersion": "[parameters('wpCommon').wpVersion]",
+                "sshUsername": "[parameters('wpCommon').sshUsername]"
             }
         }
     },

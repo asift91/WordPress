@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "lampCommon": {
+        "wpCommon": {
             "metadata": {
                 "description": "Common LAMP values"
             },
@@ -11,14 +11,14 @@
     },
     "resources": [
         {
-            "condition": "[not(equals(parameters('lampCommon').fileServerType, 'azurefiles'))]",
+            "condition": "[not(equals(parameters('wpCommon').fileServerType, 'azurefiles'))]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
-            "location": "[parameters('lampCommon').location]",
-            "name": "[concat(parameters('lampCommon').storageAccountName,'naf')]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[concat(parameters('wpCommon').storageAccountName,'naf')]",
             "kind": "Storage",
             "sku": {
-                "name": "[parameters('lampCommon').storageAccountType]"
+                "name": "[parameters('wpCommon').storageAccountType]"
             },
             "properties": {
                 "encryption": {
@@ -42,14 +42,14 @@
             }
         },
         {
-            "condition": "[equals(parameters('lampCommon').fileServerType, 'azurefiles')]",
+            "condition": "[equals(parameters('wpCommon').fileServerType, 'azurefiles')]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
-            "location": "[parameters('lampCommon').location]",
-            "name": "[concat(parameters('lampCommon').storageAccountName,'af')]",
-            "kind": "[if(equals(parameters('lampCommon').storageAccountType, 'Premium_LRS'), 'FileStorage', 'Storage')]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[concat(parameters('wpCommon').storageAccountName,'af')]",
+            "kind": "[if(equals(parameters('wpCommon').storageAccountType, 'Premium_LRS'), 'FileStorage', 'Storage')]",
             "sku": {
-                "name": "[parameters('lampCommon').storageAccountType]"
+                "name": "[parameters('wpCommon').storageAccountType]"
             },
             "properties": {
                 "largeFileSharesState": "Enabled",
@@ -80,7 +80,7 @@
         "documentation1": "This sub-template creates a storage account.  It expects certain values in the 'common' datastructure.",
         "documentation2": " storageAccountName - name of storage account",
         "documentation3": " storageAccountType - type of storage account",
-        "storageName": "[concat(parameters('lampCommon').storageAccountName,if(equals(parameters('lampCommon').fileServerType, 'azurefiles'), 'af', 'naf'))]",
+        "storageName": "[concat(parameters('wpCommon').storageAccountName,if(equals(parameters('wpCommon').fileServerType, 'azurefiles'), 'af', 'naf'))]",
         "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
     },
     "outputs": {

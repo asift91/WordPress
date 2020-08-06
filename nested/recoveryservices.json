@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "lampCommon": {
+        "wpCommon": {
             "metadata": {
                 "description": "Common LAMP values"
             },
@@ -13,8 +13,8 @@
         {
             "type": "Microsoft.RecoveryServices/vaults",
             "apiVersion": "2016-06-01",
-            "location": "[parameters('lampCommon').location]",
-            "name": "[parameters('lampCommon').vaultName]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[parameters('wpCommon').vaultName]",
             "properties": {},
             "sku": {
                 "name": "RS0",
@@ -25,10 +25,10 @@
             "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
             "apiVersion": "2016-12-01",
             "dependsOn": [
-                "[concat('Microsoft.RecoveryServices/vaults/', parameters('lampCommon').vaultName)]"
+                "[concat('Microsoft.RecoveryServices/vaults/', parameters('wpCommon').vaultName)]"
             ],
-            "location": "[parameters('lampCommon').location]",
-            "name": "[concat(parameters('lampCommon').vaultName, '/', parameters('lampCommon').policyName)]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[concat(parameters('wpCommon').vaultName, '/', parameters('wpCommon').policyName)]",
             "properties": {
                 "backupManagementType": "AzureIaasVM",
                 "retentionPolicy": {

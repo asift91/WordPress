@@ -2,7 +2,7 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "lampCommon": {
+        "wpCommon": {
             "metadata": {
                 "description": "Common LAMP values"
             },
@@ -19,59 +19,59 @@
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2019-11-01",
-            "name": "[concat(parameters('vnetName'), '/', parameters('lampCommon').subnetWeb)]",
-            "location": "[parameters('lampCommon').location]",
+            "name": "[concat(parameters('vnetName'), '/', parameters('wpCommon').subnetWeb)]",
+            "location": "[parameters('wpCommon').location]",
             "properties": {
-                "addressPrefix": "[parameters('lampCommon').subnetWebRange]"
+                "addressPrefix": "[parameters('wpCommon').subnetWebRange]"
             }
         },
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2019-11-01",
-            "name": "[concat(parameters('vnetName'), '/', parameters('lampCommon').subnetSan)]",
-            "location": "[parameters('lampCommon').location]",
+            "name": "[concat(parameters('vnetName'), '/', parameters('wpCommon').subnetSan)]",
+            "location": "[parameters('wpCommon').location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('lampCommon').subnetWeb)]"
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('wpCommon').subnetWeb)]"
             ],
             "properties": {
-                "addressPrefix": "[parameters('lampCommon').subnetSanRange]"
+                "addressPrefix": "[parameters('wpCommon').subnetSanRange]"
             }
         },
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2019-11-01",
-            "name": "[concat(parameters('vnetName'), '/', parameters('lampCommon').subnetRedis)]",
-            "location": "[parameters('lampCommon').location]",
+            "name": "[concat(parameters('vnetName'), '/', parameters('wpCommon').subnetRedis)]",
+            "location": "[parameters('wpCommon').location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('lampCommon').subnetSan)]"
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('wpCommon').subnetSan)]"
             ],
             "properties": {
-                "addressPrefix": "[parameters('lampCommon').subnetRedisRange]"
+                "addressPrefix": "[parameters('wpCommon').subnetRedisRange]"
             }
         },
         {
-            "condition": "[parameters('lampCommon').vnetGwDeploySwitch]",
+            "condition": "[parameters('wpCommon').vnetGwDeploySwitch]",
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2019-11-01",
-            "name": "[concat(parameters('vnetName'), '/', parameters('lampCommon').subnetGateway)]",
-            "location": "[parameters('lampCommon').location]",
+            "name": "[concat(parameters('vnetName'), '/', parameters('wpCommon').subnetGateway)]",
+            "location": "[parameters('wpCommon').location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('lampCommon').subnetRedis)]"
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('wpCommon').subnetRedis)]"
             ],
             "properties": {
-                "addressPrefix": "[parameters('lampCommon').subnetGatewayRange]"
+                "addressPrefix": "[parameters('wpCommon').subnetGatewayRange]"
             }
         },
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2019-11-01",
-            "name": "[concat(parameters('vnetName'), '/', parameters('lampCommon').subnetAppGw)]",
-            "location": "[parameters('lampCommon').location]",
+            "name": "[concat(parameters('vnetName'), '/', parameters('wpCommon').subnetAppGw)]",
+            "location": "[parameters('wpCommon').location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('lampCommon').subnetGateway)]"
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('wpCommon').subnetGateway)]"
             ],
             "properties": {
-                "addressPrefix": "[parameters('lampCommon').subnetAppGwRange]"
+                "addressPrefix": "[parameters('wpCommon').subnetAppGwRange]"
             }
         }
     ],

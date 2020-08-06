@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "lampCommon": {
+        "wpCommon": {
             "metadata": {
                 "description": "Common LAMP values"
             },
@@ -25,7 +25,7 @@
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2019-07-01",
-            "location": "[parameters('lampCommon').location]",
+            "location": "[parameters('wpCommon').location]",
             "name": "[concat(parameters('vmName'),'/','install_gluster')]",
             "properties": {
                 "publisher": "Microsoft.Azure.Extensions",
@@ -46,13 +46,13 @@
         }
     ],
     "variables": {
-        "cmdExec": "[concat('bash ', parameters('lampCommon').glusterScriptFilename, ' ', parameters('lampCommon').gfsNameRoot, ' ', parameters('lampCommon').subnetSanPrefix, ' data ', parameters('vmNumber'), ' ', parameters('lampCommon').fileServerVmCount)]",
+        "cmdExec": "[concat('bash ', parameters('wpCommon').glusterScriptFilename, ' ', parameters('wpCommon').gfsNameRoot, ' ', parameters('wpCommon').subnetSanPrefix, ' data ', parameters('vmNumber'), ' ', parameters('wpCommon').fileServerVmCount)]",
         "documentation01": "This sub-template applies a specific post-deployment script to the gluster vms",
         "documentation02": "It expects certain values in the 'common' datastructure.",
         "documentation03": "    scriptLocation        - partial web URI (equivalent to folder)",
         "documentation04": "    glusterScriptFilename - name of script file",
         "documentation06": "    gfsNameRoot           - nameroot of gluster farm - note that the code applies a vmNumber to get to the specific node",
         "documentation07": "    fileServerVmCount     - number of gluster VMs",
-        "scriptUri": "[concat(parameters('lampCommon').scriptLocation,parameters('lampCommon').glusterScriptFilename,parameters('lampCommon').artifactsSasToken)]"
+        "scriptUri": "[concat(parameters('wpCommon').scriptLocation,parameters('wpCommon').glusterScriptFilename,parameters('wpCommon').artifactsSasToken)]"
     }
 }

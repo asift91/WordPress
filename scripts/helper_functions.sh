@@ -4,7 +4,7 @@
 
 function get_setup_params_from_configs_json
 {
-    local configs_json_path=${1}    # E.g., /var/lib/cloud/instance/lamp_on_azure_configs.json
+    local configs_json_path=${1}    # E.g., /var/lib/cloud/instance/wordpress_on_azure_configs.json
 
     (dpkg -l jq &> /dev/null) || (apt -y update; apt -y install jq)
 
@@ -25,15 +25,15 @@ function get_setup_params_from_configs_json
     export siteFQDN=$(echo $json | jq -r .siteProfile.siteURL)
     export httpsTermination=$(echo $json | jq -r .siteProfile.httpsTermination)
     export dbIP=$(echo $json | jq -r .dbServerProfile.fqdn)
-    export adminpass=$(echo $json | jq -r .lampProfile.adminPassword)
+    export adminpass=$(echo $json | jq -r .wordpressProfile.adminPassword)
     export dbadminlogin=$(echo $json | jq -r .dbServerProfile.adminLogin)
     export dbadminloginazure=$(echo $json | jq -r .dbServerProfile.adminLoginAzure)
     export dbadminpass=$(echo $json | jq -r .dbServerProfile.adminPassword)
-    export storageAccountName=$(echo $json | jq -r .lampProfile.storageAccountName)
-    export storageAccountKey=$(echo $json | jq -r .lampProfile.storageAccountKey)
-    export redisDeploySwitch=$(echo $json | jq -r .lampProfile.redisDeploySwitch)
-    export redisDns=$(echo $json | jq -r .lampProfile.redisDns)
-    export redisAuth=$(echo $json | jq -r .lampProfile.redisKey)
+    export storageAccountName=$(echo $json | jq -r .wordpressProfile.storageAccountName)
+    export storageAccountKey=$(echo $json | jq -r .wordpressProfile.storageAccountKey)
+    export redisDeploySwitch=$(echo $json | jq -r .wordpressProfile.redisDeploySwitch)
+    export redisDns=$(echo $json | jq -r .wordpressProfile.redisDns)
+    export redisAuth=$(echo $json | jq -r .wordpressProfile.redisKey)
     export dbServerType=$(echo $json | jq -r .dbServerProfile.type)
     export fileServerType=$(echo $json | jq -r .fileServerProfile.type)
     export mssqlDbServiceObjectiveName=$(echo $json | jq -r .dbServerProfile.mssqlDbServiceObjectiveName)
@@ -41,8 +41,8 @@ function get_setup_params_from_configs_json
     export mssqlDbSize=$(echo $json | jq -r .dbServerProfile.mssqlDbSize)
     export thumbprintSslCert=$(echo $json | jq -r .siteProfile.thumbprintSslCert)
     export thumbprintCaCert=$(echo $json | jq -r .siteProfile.thumbprintCaCert)
-    export syslogServer=$(echo $json | jq -r .lampProfile.syslogServer)
-    export htmlLocalCopySwitch=$(echo $json | jq -r .lampProfile.htmlLocalCopySwitch)
+    export syslogServer=$(echo $json | jq -r .wordpressProfile.syslogServer)
+    export htmlLocalCopySwitch=$(echo $json | jq -r .wordpressProfile.htmlLocalCopySwitch)
     export nfsVmName=$(echo $json | jq -r .fileServerProfile.nfsVmName)
     export nfsHaLbIP=$(echo $json | jq -r .fileServerProfile.nfsHaLbIP)
     export nfsHaExportPath=$(echo $json | jq -r .fileServerProfile.nfsHaExportPath)
@@ -82,7 +82,7 @@ function create_database {
 }
 
 function download_wordpress {
-    local wordpressPath=/azlamp/html
+    local wordpressPath=/wordpress/html
     #local path=/var/lib/waagent/custom-script/download/0
     local siteFQDN=$1
     local version=$2
@@ -101,7 +101,7 @@ function create_wpconfig {
     local dbadminpass=$4
     local siteFQDN=$5
 
-    cat <<EOF >/azlamp/html/$siteFQDN/wp-config.php
+    cat <<EOF >/wordpress/html/$siteFQDN/wp-config.php
   <?php
   /**
   * Following configration file will be updated in the wordpress folder in runtime 
@@ -199,24 +199,24 @@ function install_plugins {
 }
 
 function linking_data_location {
-    local dataPath=/azlamp/data
+    local dataPath=/wordpress/data
     mkdir -p $dataPath/$1
     mkdir -p $dataPath/$1/wp-content
-    mv /azlamp/html/$1/wp-content /tmp/wp-content
-    ln -s $dataPath/$1/wp-content /azlamp/html/$1/
+    mv /wordpress/html/$1/wp-content /tmp/wp-content
+    ln -s $dataPath/$1/wp-content /wordpress/html/$1/
     mv /tmp/wp-content/* $dataPath/$1/wp-content/
     chmod 0755 $dataPath/$1/wp-content
     chown -R www-data:www-data $dataPath/$1
 }
 
 function generate_sslcerts {
-    local path=/azlamp/certs/$1
+    local path=/wordpress/certs/$1
     mkdir -p $path
     echo -e "Generating SSL self-signed certificate"
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $path/nginx.key -out $path/nginx.crt -subj "/C=US/ST=WA/L=Redmond/O=IT/CN=$1"
     chmod 400 $path/nginx.*
     chown www-data:www-data $path/nginx.*
-    chown -R www-data:www-data /azlamp/data/$1
+    chown -R www-data:www-data /wordpress/data/$1
 }
 
 function generate_text_file {
@@ -293,7 +293,7 @@ function setup_and_mount_gluster_share
 {
     local glusterNode=$1
     local glusterVolume=$2
-    local mountPoint=$3     # E.g., /azlamp
+    local mountPoint=$3     # E.g., /wordpress
 
     grep -q "${mountPoint}.*glusterfs" /etc/fstab || echo -e $glusterNode':/'$glusterVolume'   '$mountPoint'         glusterfs       defaults,_netdev,log-level=WARNING,log-file=/var/log/gluster.log 0 0' >> /etc/fstab
     mount $mountPoint
@@ -305,21 +305,21 @@ function setup_and_mount_azure_files_share
     local storageAccountName=$2
     local storageAccountKey=$3
 
-    cat <<EOF > /etc/azlamp_azure_files.credential
+    cat <<EOF > /etc/wordpress_azure_files.credential
 username=$storageAccountName
 password=$storageAccountKey
 EOF
-    chmod 600 /etc/azlamp_azure_files.credential
+    chmod 600 /etc/wordpress_azure_files.credential
     
-    grep -q -s "^//$storageAccountName.file.core.windows.net/azlamp\s\s*/azlamp\s\s*cifs" /etc/fstab && _RET=$? || _RET=$?
+    grep -q -s "^//$storageAccountName.file.core.windows.net/wordpress\s\s*/wordpress\s\s*cifs" /etc/fstab && _RET=$? || _RET=$?
     if [ $_RET != "0" ]; then
-        echo -e "\n//$storageAccountName.file.core.windows.net/azlamp   /azlamp cifs    credentials=/etc/azlamp_azure_files.credential,uid=www-data,gid=www-data,nofail,vers=3.0,dir_mode=0770,file_mode=0660,serverino,mfsymlinks" >> /etc/fstab
+        echo -e "\n//$storageAccountName.file.core.windows.net/wordpress   /wordpress cifs    credentials=/etc/wordpress_azure_files.credential,uid=www-data,gid=www-data,nofail,vers=3.0,dir_mode=0770,file_mode=0660,serverino,mfsymlinks" >> /etc/fstab
     fi
-    mkdir -p /azlamp
-    mount /azlamp
+    mkdir -p /wordpress
+    mount /wordpress
 }
 
-function setup_azlamp_mount_dependency_for_systemd_service
+function setup_wordpress_mount_dependency_for_systemd_service
 {
   local serviceName=$1 # E.g., nginx
   if [ -z "$serviceName" ]; then
@@ -327,14 +327,14 @@ function setup_azlamp_mount_dependency_for_systemd_service
   fi
 
   local systemdSvcOverrideFileDir="/etc/systemd/system/${serviceName}.service.d"
-  local systemdSvcOverrideFilePath="${systemdSvcOverrideFileDir}/azlamp_override.conf"
+  local systemdSvcOverrideFilePath="${systemdSvcOverrideFileDir}/wordpress_override.conf"
 
-  grep -q -s "After=azlamp.mount" $systemdSvcOverrideFilePath && _RET=$? || _RET=$?
+  grep -q -s "After=wordpress.mount" $systemdSvcOverrideFilePath && _RET=$? || _RET=$?
   if [ $_RET != "0" ]; then
     mkdir -p $systemdSvcOverrideFileDir
     cat <<EOF > $systemdSvcOverrideFilePath
 [Unit]
-After=azlamp.mount
+After=wordpress.mount
 EOF
     systemctl daemon-reload
   fi
@@ -403,7 +403,7 @@ function do_partition {
 
 function add_local_filesystem_to_fstab {
     local UUID=${1}
-    local MOUNTPOINT=${2}   # E.g., /azlamp
+    local MOUNTPOINT=${2}   # E.g., /wordpress
 
     grep -q -s "${UUID}" /etc/fstab && _RET=$? || _RET=$?
     if [ $_RET -eq 0 ];
@@ -416,7 +416,7 @@ function add_local_filesystem_to_fstab {
 }
 
 function setup_raid_disk_and_filesystem {
-    local MOUNTPOINT=${1}     # E.g., /azlamp
+    local MOUNTPOINT=${1}     # E.g., /wordpress
     local RAIDDISK=${2}       # E.g., /dev/md1
     local RAIDPARTITION=${3}  # E.g., /dev/md1p1
     local CREATE_FILESYSTEM=${4}  # E.g., "" (true) or any non-empty string (false)
@@ -460,7 +460,7 @@ function setup_raid_disk_and_filesystem {
 }
 
 function configure_nfs_server_and_export {
-    local MOUNTPOINT=${1}     # E.g., /azlamp
+    local MOUNTPOINT=${1}     # E.g., /wordpress
 
     echo "Installing nfs server..."
     apt install -y nfs-kernel-server
@@ -476,8 +476,8 @@ function configure_nfs_server_and_export {
 }
 
 function configure_nfs_client_and_mount0 {
-    local NFS_HOST_EXPORT_PATH=${1}   # E.g., controller-vm-ab12cd:/azlamp or 172.16.3.100:/drbd/data
-    local MOUNTPOINT=${2}             # E.g., /azlamp
+    local NFS_HOST_EXPORT_PATH=${1}   # E.g., controller-vm-ab12cd:/wordpress or 172.16.3.100:/drbd/data
+    local MOUNTPOINT=${2}             # E.g., /wordpress
 
     apt install -y nfs-common
     mkdir -p ${MOUNTPOINT}
@@ -493,16 +493,16 @@ function configure_nfs_client_and_mount0 {
 
 function configure_nfs_client_and_mount {
     local NFS_SERVER=${1}     # E.g., controller-vm-ab12cd or IP (NFS-HA LB)
-    local NFS_DIR=${2}        # E.g., /azlamp or /drbd/data
-    local MOUNTPOINT=${3}     # E.g., /azlamp
+    local NFS_DIR=${2}        # E.g., /wordpress or /drbd/data
+    local MOUNTPOINT=${3}     # E.g., /wordpress
 
     configure_nfs_client_and_mount0 "${NFS_SERVER}:${NFS_DIR}" ${MOUNTPOINT}
 }
 
-SERVER_TIMESTAMP_FULLPATH="/azlamp/html/.last_modified_time.azlamp"
-LOCAL_TIMESTAMP_FULLPATH="/var/www/html/.last_modified_time.azlamp"
+SERVER_TIMESTAMP_FULLPATH="/wordpress/html/.last_modified_time.wordpress"
+LOCAL_TIMESTAMP_FULLPATH="/var/www/html/.last_modified_time.wordpress"
 
-# Create a script to sync /azlamp/html (gluster/NFS) and /var/www/html (local) and set up a minutely cron job
+# Create a script to sync /wordpress/html (gluster/NFS) and /var/www/html (local) and set up a minutely cron job
 # Should be called by root and only on a VMSS web frontend VM
 function setup_html_local_copy_cron_job {
   if [ "$(whoami)" != "root" ]; then
@@ -510,10 +510,10 @@ function setup_html_local_copy_cron_job {
     return 1
   fi
 
-  local SYNC_SCRIPT_FULLPATH="/usr/local/bin/sync_azlamp_html_local_copy_if_modified.sh"
+  local SYNC_SCRIPT_FULLPATH="/usr/local/bin/sync_wordpress_html_local_copy_if_modified.sh"
   mkdir -p $(dirname ${SYNC_SCRIPT_FULLPATH})
 
-  local SYNC_LOG_FULLPATH="/var/log/azlamp-html-sync.log"
+  local SYNC_LOG_FULLPATH="/var/log/wordpress-html-sync.log"
 
   cat <<EOF > ${SYNC_SCRIPT_FULLPATH}
 #!/bin/bash
@@ -525,25 +525,25 @@ if [ -f "$SERVER_TIMESTAMP_FULLPATH" ]; then
   if [ -f "$LOCAL_TIMESTAMP_FULLPATH" ]; then
     LOCAL_TIMESTAMP=\$(cat $LOCAL_TIMESTAMP_FULLPATH)
   else
-    logger -p local2.notice -t azlamp "Local timestamp file ($LOCAL_TIMESTAMP_FULLPATH) does not exist. Probably first time syncing? Continuing to sync."
+    logger -p local2.notice -t wordpress "Local timestamp file ($LOCAL_TIMESTAMP_FULLPATH) does not exist. Probably first time syncing? Continuing to sync."
     mkdir -p /var/www/html
   fi
   if [ "\$SERVER_TIMESTAMP" != "\$LOCAL_TIMESTAMP" ]; then
-    logger -p local2.notice -t lamp "Server time stamp (\$SERVER_TIMESTAMP) is different from local time stamp (\$LOCAL_TIMESTAMP). Start syncing..."
+    logger -p local2.notice -t wordpress "Server time stamp (\$SERVER_TIMESTAMP) is different from local time stamp (\$LOCAL_TIMESTAMP). Start syncing..."
     if [[ \$(find $SYNC_LOG_FULLPATH -type f -size +20M 2> /dev/null) ]]; then
       truncate -s 0 $SYNC_LOG_FULLPATH
     fi
     echo \$(date +%Y%m%d%H%M%S) >> $SYNC_LOG_FULLPATH
-    rsync -av --delete /azlamp/html/. /var/www/html >> $SYNC_LOG_FULLPATH
+    rsync -av --delete /wordpress/html/. /var/www/html >> $SYNC_LOG_FULLPATH
   fi
 else
-  logger -p local2.notice -t azlamp "Remote timestamp file ($SERVER_TIMESTAMP_FULLPATH) does not exist. Is /azlamp mounted? Exiting with error."
+  logger -p local2.notice -t wordpress "Remote timestamp file ($SERVER_TIMESTAMP_FULLPATH) does not exist. Is /wordpress mounted? Exiting with error."
   exit 1
 fi
 EOF
   chmod 500 ${SYNC_SCRIPT_FULLPATH}
 
-  local CRON_DESC_FULLPATH="/etc/cron.d/sync-azlamp-html-local-copy"
+  local CRON_DESC_FULLPATH="/etc/cron.d/sync-wordpress-html-local-copy"
   cat <<EOF > ${CRON_DESC_FULLPATH}
 * * * * * root ${SYNC_SCRIPT_FULLPATH}
 EOF
@@ -552,16 +552,16 @@ EOF
   # Addition of a hook for custom script run on VMSS from shared mount to allow customised configuration of the VMSS as required
   local CRON_DESC_FULLPATH2="/etc/cron.d/update-vmss-config"
   cat <<EOF > ${CRON_DESC_FULLPATH2}
-* * * * * root [ -f /azlamp/bin/update-vmss-config ] && /bin/bash /azlamp/bin/update-vmss-config
+* * * * * root [ -f /wordpress/bin/update-vmss-config ] && /bin/bash /wordpress/bin/update-vmss-config
 EOF
   chmod 644 ${CRON_DESC_FULLPATH2}
 }
 
-LAST_MODIFIED_TIME_UPDATE_SCRIPT_FULLPATH="/usr/local/bin/update_last_modified_time.azlamp.sh"
+LAST_MODIFIED_TIME_UPDATE_SCRIPT_FULLPATH="/usr/local/bin/update_last_modified_time.wordpress.sh"
 
-# Create a script to modify the last modified timestamp file (/azlamp/html/.last_modified_time.azlamp)
+# Create a script to modify the last modified timestamp file (/wordpress/html/.last_modified_time.wordpress)
 # Should be called by root and only on the controller VM.
-# The sysadmin should run the generated script everytime the /azlamp/html directory content is updated (e.g., app upgrade, config change or plugin install/upgrade)
+# The sysadmin should run the generated script everytime the /wordpress/html directory content is updated (e.g., app upgrade, config change or plugin install/upgrade)
 function create_last_modified_time_update_script {
   if [ "$(whoami)" != "root" ]; then
     echo "${0}: Must be run as root!"
@@ -583,7 +583,7 @@ function run_once_last_modified_time_update_script {
 
 function config_one_site_on_vmss
 {
-  local siteFQDN=${1}             # E.g., "www.contoso.com". Will be used as the site's HTML subdirectory name in /azlamp/html (as /azlamp/html/$siteFQDN)
+  local siteFQDN=${1}             # E.g., "www.contoso.com". Will be used as the site's HTML subdirectory name in /wordpress/html (as /wordpress/html/$siteFQDN)
   local htmlLocalCopySwitch=${2}  # "true" or anything else (don't care)
   local httpsTermination=${3}     # "VMSS" or "None"
 
@@ -591,10 +591,10 @@ function config_one_site_on_vmss
   if [ "$htmlLocalCopySwitch" = "true" ]; then
     local htmlRootDir="/var/www/html/$siteFQDN"
   else
-    local htmlRootDir="/azlamp/html/$siteFQDN"
+    local htmlRootDir="/wordpress/html/$siteFQDN"
   fi
 
-  local certsDir="/azlamp/certs/$siteFQDN"
+  local certsDir="/wordpress/certs/$siteFQDN"
   local PhpVer=$(get_php_version)
 
   if [ "$httpsTermination" = "VMSS" ]; then
@@ -612,8 +612,8 @@ server {
         ssl_certificate_key ${certsDir}/nginx.key;
 
         # Log to syslog
-        # error_log syslog:server=localhost,facility=local1,severity=error,tag=lamp;
-        # access_log syslog:server=localhost,facility=local1,severity=notice,tag=lamp combined;
+        # error_log syslog:server=localhost,facility=local1,severity=error,tag=wordpress;
+        # access_log syslog:server=localhost,facility=local1,severity=notice,tag=wordpress combined;
         
         # Server Logs
         access_log /var/log/nginx/access.log;
@@ -643,8 +643,8 @@ server {
         server_name ${siteFQDN};
 
         # Log to syslog
-        # error_log syslog:server=localhost,facility=local1,severity=error,tag=lamp;
-        # access_log syslog:server=localhost,facility=local1,severity=notice,tag=lamp combined;
+        # error_log syslog:server=localhost,facility=local1,severity=error,tag=wordpress;
+        # access_log syslog:server=localhost,facility=local1,severity=notice,tag=wordpress combined;
         
         # Server Logs
         access_log /var/log/nginx/access.log;
@@ -673,7 +673,7 @@ function config_all_sites_on_vmss
   local htmlLocalCopySwitch=${1}  # "true" or anything else (don't care)
   local httpsTermination=${2}     # "VMSS" or "None"
 
-  local allSites=$(ls /azlamp/html)
+  local allSites=$(ls /wordpress/html)
   for site in $allSites; do
     config_one_site_on_vmss $site $htmlLocalCopySwitch $httpsTermination
   done
@@ -752,8 +752,8 @@ function create_per_site_nginx_conf_on_controller
 {
     local siteFQDN=${1}
     local httpsTermination=${2} # "None", "VMSS", etc
-    local htmlDir=${3}          # E.g., /azlamp/html/site1.org
-    local certsDir=${4}         # E.g., /azlamp/certs/site1.org
+    local htmlDir=${3}          # E.g., /wordpress/html/site1.org
+    local certsDir=${4}         # E.g., /wordpress/certs/site1.org
 
     if [ "$httpsTermination" = "VMSS" ]; then
     # Configure nginx/https
@@ -770,8 +770,8 @@ server {
         ssl_certificate_key ${certsDir}/nginx.key;
 
         # Log to syslog
-        # error_log syslog:server=localhost,facility=local1,severity=error,tag=lamp;
-        # access_log syslog:server=localhost,facility=local1,severity=notice,tag=lamp combined;
+        # error_log syslog:server=localhost,facility=local1,severity=error,tag=wordpress;
+        # access_log syslog:server=localhost,facility=local1,severity=notice,tag=wordpress combined;
         
         # Server Logs
         access_log /var/log/nginx/access.log;
@@ -801,8 +801,8 @@ server {
         server_name ${siteFQDN};
 
         # Log to syslog
-        # error_log syslog:server=localhost,facility=local1,severity=error,tag=lamp;
-        # access_log syslog:server=localhost,facility=local1,severity=notice,tag=lamp combined;
+        # error_log syslog:server=localhost,facility=local1,severity=error,tag=wordpress;
+        # access_log syslog:server=localhost,facility=local1,severity=notice,tag=wordpress combined;
         
         # Server Logs
         access_log /var/log/nginx/access.log;
@@ -894,31 +894,31 @@ function create_per_site_sql_db_from_controller
     local dbIP=${2}
     local dbadminloginazure=${3}
     local dbadminpass=${4}
-    local azlampdbname=${5}
-    local azlampdbuser=${6}
-    local azlampdbpass=${7}
+    local wordpressdbname=${5}
+    local wordpressdbuser=${6}
+    local wordpressdbpass=${7}
     local mssqlDbSize=${8}
     local mssqlDbEdition=${9}
     local mssqlDbServiceObjectiveName=${10}
 
     if [ $dbServerType = "mysql" ]; then
-        mysql -h $dbIP -u $dbadminloginazure -p${dbadminpass} -e "CREATE DATABASE ${azlampdbname} CHARACTER SET utf8;"
-        mysql -h $dbIP -u $dbadminloginazure -p${dbadminpass} -e "GRANT ALL ON ${azlampdbname}.* TO ${azlampdbuser} IDENTIFIED BY '${azlampdbpass}';"
+        mysql -h $dbIP -u $dbadminloginazure -p${dbadminpass} -e "CREATE DATABASE ${wordpressdbname} CHARACTER SET utf8;"
+        mysql -h $dbIP -u $dbadminloginazure -p${dbadminpass} -e "GRANT ALL ON ${wordpressdbname}.* TO ${wordpressdbuser} IDENTIFIED BY '${wordpressdbpass}';"
 
-        echo "mysql -h $dbIP -u $dbadminloginazure -p${dbadminpass} -e \"CREATE DATABASE ${azlampdbname};\"" >> /tmp/debug
-        echo "mysql -h $dbIP -u $dbadminloginazure -p${dbadminpass} -e \"GRANT ALL ON ${azlampdbname}.* TO ${azlampdbuser} IDENTIFIED BY '${azlampdbpass}';\"" >> /tmp/debug
+        echo "mysql -h $dbIP -u $dbadminloginazure -p${dbadminpass} -e \"CREATE DATABASE ${wordpressdbname};\"" >> /tmp/debug
+        echo "mysql -h $dbIP -u $dbadminloginazure -p${dbadminpass} -e \"GRANT ALL ON ${wordpressdbname}.* TO ${wordpressdbuser} IDENTIFIED BY '${wordpressdbpass}';\"" >> /tmp/debug
     elif [ $dbServerType = "mssql" ]; then
-        /opt/mssql-tools/bin/sqlcmd -S $dbIP -U $dbadminloginazure -P ${dbadminpass} -Q "CREATE DATABASE ${azlampdbname} ( MAXSIZE = $mssqlDbSize, EDITION = '$mssqlDbEdition', SERVICE_OBJECTIVE = '$mssqlDbServiceObjectiveName' )"
-        /opt/mssql-tools/bin/sqlcmd -S $dbIP -U $dbadminloginazure -P ${dbadminpass} -Q "CREATE LOGIN ${azlampdbuser} with password = '${azlampdbpass}'"
-        /opt/mssql-tools/bin/sqlcmd -S $dbIP -U $dbadminloginazure -P ${dbadminpass} -d ${azlampdbname} -Q "CREATE USER ${azlampdbuser} FROM LOGIN ${azlampdbuser}"
-        /opt/mssql-tools/bin/sqlcmd -S $dbIP -U $dbadminloginazure -P ${dbadminpass} -d ${azlampdbname} -Q "exec sp_addrolemember 'db_owner','${azlampdbuser}'"
+        /opt/mssql-tools/bin/sqlcmd -S $dbIP -U $dbadminloginazure -P ${dbadminpass} -Q "CREATE DATABASE ${wordpressdbname} ( MAXSIZE = $mssqlDbSize, EDITION = '$mssqlDbEdition', SERVICE_OBJECTIVE = '$mssqlDbServiceObjectiveName' )"
+        /opt/mssql-tools/bin/sqlcmd -S $dbIP -U $dbadminloginazure -P ${dbadminpass} -Q "CREATE LOGIN ${wordpressdbuser} with password = '${wordpressdbpass}'"
+        /opt/mssql-tools/bin/sqlcmd -S $dbIP -U $dbadminloginazure -P ${dbadminpass} -d ${wordpressdbname} -Q "CREATE USER ${wordpressdbuser} FROM LOGIN ${wordpressdbuser}"
+        /opt/mssql-tools/bin/sqlcmd -S $dbIP -U $dbadminloginazure -P ${dbadminpass} -d ${wordpressdbname} -Q "exec sp_addrolemember 'db_owner','${wordpressdbuser}'"
     else
         # Create postgres db
         echo "${dbIP}:5432:postgres:${dbadminloginazure}:${dbadminpass}" > /root/.pgpass
         chmod 600 /root/.pgpass
-        psql -h $dbIP -U $dbadminloginazure -c "CREATE DATABASE ${azlampdbname};" postgres
-        psql -h $dbIP -U $dbadminloginazure -c "CREATE USER ${azlampdbuser} WITH PASSWORD '${azlampdbpass}';" postgres
-        psql -h $dbIP -U $dbadminloginazure -c "GRANT ALL ON DATABASE ${azlampdbname} TO ${azlampdbuser};" postgres
+        psql -h $dbIP -U $dbadminloginazure -c "CREATE DATABASE ${wordpressdbname};" postgres
+        psql -h $dbIP -U $dbadminloginazure -c "CREATE USER ${wordpressdbuser} WITH PASSWORD '${wordpressdbpass}';" postgres
+        psql -h $dbIP -U $dbadminloginazure -c "GRANT ALL ON DATABASE ${wordpressdbname} TO ${wordpressdbuser};" postgres
         rm -f /root/.pgpass
     fi
 }
@@ -932,9 +932,9 @@ function config_syslog_on_controller
 \$UDPServerRun 514
 EOF
     cat <<EOF >> /etc/rsyslog.d/40-sitelogs.conf
-local1.*   /var/log/sitelogs/azlamp/access.log
-local1.err   /var/log/sitelogs/azlamp/error.log
-local2.*   /var/log/sitelogs/azlamp/cron.log
+local1.*   /var/log/sitelogs/wordpress/access.log
+local1.err   /var/log/sitelogs/wordpress/error.log
+local2.*   /var/log/sitelogs/wordpress/cron.log
 EOF
 }
 

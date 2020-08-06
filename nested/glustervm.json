@@ -8,7 +8,7 @@
             },
             "type": "int"
         },
-        "lampCommon": {
+        "wpCommon": {
             "metadata": {
                 "description": "Common LAMP values"
             },
@@ -25,7 +25,7 @@
         {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2019-11-01",
-            "location": "[parameters('lampCommon').location]",
+            "location": "[parameters('wpCommon').location]",
             "name": "[variables('nicName')]",
             "properties": {
                 "ipConfigurations": [
@@ -39,7 +39,7 @@
                         }
                     }
                 ],
-                "enableAcceleratedNetworking": "[parameters('lampCommon').enableAccelNwForOtherVmsSwitch]"
+                "enableAcceleratedNetworking": "[parameters('wpCommon').enableAccelNwForOtherVmsSwitch]"
             },
             "tags": {
                 "displayName": "Gluster VM NIC"
@@ -51,14 +51,14 @@
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
             ],
-            "location": "[parameters('lampCommon').location]",
+            "location": "[parameters('wpCommon').location]",
             "name": "[variables('vmName')]",
             "properties": {
                 "availabilitySet": {
                     "id": "[variables('asRef')]"
                 },
                 "hardwareProfile": {
-                    "vmSize": "[parameters('lampCommon').fileServerVmSku]"
+                    "vmSize": "[parameters('wpCommon').fileServerVmSku]"
                 },
                 "networkProfile": {
                     "networkInterfaces": [
@@ -68,38 +68,38 @@
                     ]
                 },
                 "osProfile": {
-                    "adminUsername": "[parameters('lampCommon').sshUsername]",
+                    "adminUsername": "[parameters('wpCommon').sshUsername]",
                     "computerName": "[variables('vmName')]",
                     "linuxConfiguration": {
                         "disablePasswordAuthentication": true,
                         "ssh": {
                             "publicKeys": [
                                 {
-                                    "path": "[concat('/home/', parameters('lampCommon').sshUsername, '/.ssh/authorized_keys')]",
-                                    "keyData": "[parameters('lampCommon').sshPublicKey]"
+                                    "path": "[concat('/home/', parameters('wpCommon').sshUsername, '/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('wpCommon').sshPublicKey]"
                                 }
                             ]
                         }
                     }
                 },
                 "storageProfile": {
-                    "imageReference": "[parameters('lampCommon').osType]",
+                    "imageReference": "[parameters('wpCommon').osType]",
                     "osDisk": {
                         "createOption": "FromImage",
                         "managedDisk": {
-                            "storageAccountType": "[parameters('lampCommon').osDiskStorageType]"
+                            "storageAccountType": "[parameters('wpCommon').osDiskStorageType]"
                         },
                         "name": "[variables('vmName')]"
                     },
                     "copy": [
                         {
                             "name": "dataDisks",
-                            "count": "[parameters('lampCommon').fileServerDiskCount]",
+                            "count": "[parameters('wpCommon').fileServerDiskCount]",
                             "input": {
                                 "managedDisk": {
                                     "storageAccountType": "Premium_LRS"
                                 },
-                                "diskSizeGB": "[parameters('lampCommon').fileServerDiskSize]",
+                                "diskSizeGB": "[parameters('wpCommon').fileServerDiskSize]",
                                 "lun": "[copyIndex('dataDisks')]",
                                 "createOption": "Empty"
                             }
@@ -112,7 +112,7 @@
             }
         },
         {
-            "condition": "[parameters('lampCommon').applyScriptsSwitch]",
+            "condition": "[parameters('wpCommon').applyScriptsSwitch]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "dependsOn": [
@@ -122,8 +122,8 @@
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "lampCommon": {
-                        "value": "[parameters('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[parameters('wpCommon')]"
                     },
                     "vmName": {
                         "value": "[ variables('vmName')]"
@@ -133,12 +133,12 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(parameters('lampCommon').baseTemplateUrl,'glustervmsetup.json',parameters('lampCommon').artifactsSasToken)]"
+                    "uri": "[concat(parameters('wpCommon').baseTemplateUrl,'glustervmsetup.json',parameters('wpCommon').artifactsSasToken)]"
                 }
             }
         },
         {
-            "condition": "[parameters('lampCommon').azureBackupSwitch]",
+            "condition": "[parameters('wpCommon').azureBackupSwitch]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "dependsOn": [
@@ -148,21 +148,21 @@
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "lampCommon": {
-                        "value": "[parameters('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[parameters('wpCommon')]"
                     },
                     "vmName": {
                         "value": "[variables('vmName')]"
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(parameters('lampCommon').baseTemplateUrl,'recoveryservicesEnlist.json',parameters('lampCommon').artifactsSasToken)]"
+                    "uri": "[concat(parameters('wpCommon').baseTemplateUrl,'recoveryservicesEnlist.json',parameters('wpCommon').artifactsSasToken)]"
                 }
             }
         }
     ],
     "variables": {
-        "asRef": "[resourceId('Microsoft.Compute/availabilitySets', parameters('lampCommon').gfsAvailabilitySetName)]",
+        "asRef": "[resourceId('Microsoft.Compute/availabilitySets', parameters('wpCommon').gfsAvailabilitySetName)]",
         "documentation01": "This sub-template create the nodes of the gluster farm",
         "documentation02": "It expects certain values in the 'common' datastructure.",
         "documentation04": " gfsAvailabilitySetName  - name of availability set for the gluster farm",
@@ -179,6 +179,6 @@
         "documentation20": " fileServerDiskSize         - Size per disk for gluster",
         "nicName": "[concat(variables('vmName'),'-nic')]",
         "nicRef": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
-        "vmName": "[concat(parameters('lampCommon').gfsNameRoot,parameters('counter'))]"
+        "vmName": "[concat(parameters('wpCommon').gfsNameRoot,parameters('counter'))]"
     }
 }

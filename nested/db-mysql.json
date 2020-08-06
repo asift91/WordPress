@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "lampCommon": {
+        "wpCommon": {
             "metadata": {
                 "description": "Common LAMP values"
             },
@@ -26,32 +26,32 @@
             "type": "Microsoft.DBforMySQL/servers",
             "apiVersion": "2017-12-01",
             "kind": "",
-            "location": "[parameters('lampCommon').location]",
-            "name": "[parameters('lampCommon').serverName]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[parameters('wpCommon').serverName]",
             "properties": {
-                "administratorLogin": "[parameters('lampCommon').dbLogin]",
-                "administratorLoginPassword": "[parameters('lampCommon').dbLoginPassword]",
-                "sslEnforcement": "[parameters('lampCommon').sslEnforcement]",
+                "administratorLogin": "[parameters('wpCommon').dbLogin]",
+                "administratorLoginPassword": "[parameters('wpCommon').dbLoginPassword]",
+                "sslEnforcement": "[parameters('wpCommon').sslEnforcement]",
                 "storageProfile": {
-                    "storageMB": "[mul(parameters('lampCommon').mysqlPgresStgSizeGB, 1024)]",
+                    "storageMB": "[mul(parameters('wpCommon').mysqlPgresStgSizeGB, 1024)]",
                     "backupRetentionDays": "35",
                     "geoRedundantBackup": "Enabled"
                 },
-                "version": "[parameters('lampCommon').mysqlVersion]"
+                "version": "[parameters('wpCommon').mysqlVersion]"
             },
             "sku": {
-                "capacity": "[parameters('lampCommon').mysqlPgresVcores]",
-                "name": "[parameters('lampCommon').mysqlPgresSkuName]",
-                "tier": "[parameters('lampCommon').mysqlPgresSkuTier]",
-                "family": "[parameters('lampCommon').mysqlPgresSkuHwFamily]"
+                "capacity": "[parameters('wpCommon').mysqlPgresVcores]",
+                "name": "[parameters('wpCommon').mysqlPgresSkuName]",
+                "tier": "[parameters('wpCommon').mysqlPgresSkuTier]",
+                "family": "[parameters('wpCommon').mysqlPgresSkuHwFamily]"
             },
             "resources": [
                 {
                     "apiVersion": "2017-12-01",
                     "dependsOn": [
-                        "[concat('Microsoft.DBforMySQL/servers/', parameters('lampCommon').serverName)]"
+                        "[concat('Microsoft.DBforMySQL/servers/', parameters('wpCommon').serverName)]"
                     ],
-                    "location": "[parameters('lampCommon').location]",
+                    "location": "[parameters('wpCommon').location]",
                     "name": "mysql-firewall-allow-lb",
                     "properties": {
                         "startIpAddress": "[parameters('lbPubIp')]",
@@ -62,9 +62,9 @@
                 {
                     "apiVersion": "2017-12-01",
                     "dependsOn": [
-                        "[concat('Microsoft.DBforMySQL/servers/', parameters('lampCommon').serverName)]"
+                        "[concat('Microsoft.DBforMySQL/servers/', parameters('wpCommon').serverName)]"
                     ],
-                    "location": "[parameters('lampCommon').location]",
+                    "location": "[parameters('wpCommon').location]",
                     "name": "mysql-firewall-allow-ctlr",
                     "properties": {
                         "startIpAddress": "[parameters('ctlrPubIp')]",
@@ -78,7 +78,7 @@
     "outputs": {
         "dbFQDN": {
             "type": "string",
-            "value": "[reference(parameters('lampCommon').serverName).fullyQualifiedDomainName]"
+            "value": "[reference(parameters('wpCommon').serverName).fullyQualifiedDomainName]"
         }
     },
     "variables": {

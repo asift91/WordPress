@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "lampCommon": {
+        "wpCommon": {
             "metadata": {
                 "description": "Common LAMP values"
             },
@@ -25,17 +25,17 @@
         {
             "type": "Microsoft.Network/ddosProtectionPlans",
             "apiVersion": "2019-11-01",
-            "condition": "[parameters('lampCommon').ddosSwitch]",
-            "location": "[parameters('lampCommon').location]",
-            "name": "[parameters('lampCommon').ddosPlanName]"
+            "condition": "[parameters('wpCommon').ddosSwitch]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[parameters('wpCommon').ddosPlanName]"
         },
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2019-11-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/ddosProtectionPlans', parameters('lampCommon').ddosPlanName)]"
+                "[resourceId('Microsoft.Network/ddosProtectionPlans', parameters('wpCommon').ddosPlanName)]"
             ],
-            "location": "[parameters('lampCommon').location]",
+            "location": "[parameters('wpCommon').location]",
             "name": "[parameters('vnetName')]",
             "properties": {
                 "addressSpace": {
@@ -44,9 +44,9 @@
                     ]
                 },
                 "ddosProtectionPlan": {
-                    "id": "[resourceId('Microsoft.Network/ddosProtectionPlans', parameters('lampCommon').ddosPlanName)]"
+                    "id": "[resourceId('Microsoft.Network/ddosProtectionPlans', parameters('wpCommon').ddosPlanName)]"
                 },
-                "enableDdosProtection": "[parameters('lampCommon').ddosSwitch]"
+                "enableDdosProtection": "[parameters('wpCommon').ddosSwitch]"
             }
         }
     ],

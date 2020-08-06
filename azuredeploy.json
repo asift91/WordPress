@@ -580,12 +580,12 @@
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "lampCommon": {
-                        "value": "[variables('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[variables('wpCommon')]"
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(variables('lampCommon').baseTemplateUrl,'network.json',parameters('_artifactsLocationSasToken'))]"
+                    "uri": "[concat(variables('wpCommon').baseTemplateUrl,'network.json',parameters('_artifactsLocationSasToken'))]"
                 }
             }
         },
@@ -596,12 +596,12 @@
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "lampCommon": {
-                        "value": "[variables('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[variables('wpCommon')]"
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(variables('lampCommon').baseTemplateUrl,'storageAccount.json',parameters('_artifactsLocationSasToken'))]"
+                    "uri": "[concat(variables('wpCommon').baseTemplateUrl,'storageAccount.json',parameters('_artifactsLocationSasToken'))]"
                 }
             }
         },
@@ -615,8 +615,8 @@
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "lampCommon": {
-                        "value": "[variables('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[variables('wpCommon')]"
                     },
                     "lbPubIp": {
                         "value": "[reference('networkTemplate').outputs.lbPubIp.value]"
@@ -626,7 +626,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(variables('lampCommon').baseTemplateUrl, 'db-', parameters('dbServerType'), '.json', parameters('_artifactsLocationSasToken'))]"
+                    "uri": "[concat(variables('wpCommon').baseTemplateUrl, 'db-', parameters('dbServerType'), '.json', parameters('_artifactsLocationSasToken'))]"
                 }
             }
         },
@@ -638,12 +638,12 @@
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "lampCommon": {
-                        "value": "[variables('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[variables('wpCommon')]"
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(variables('lampCommon').baseTemplateUrl,'recoveryservices.json',parameters('_artifactsLocationSasToken'))]"
+                    "uri": "[concat(variables('wpCommon').baseTemplateUrl,'recoveryservices.json',parameters('_artifactsLocationSasToken'))]"
                 }
             }
         },
@@ -658,15 +658,15 @@
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "lampCommon": {
-                        "value": "[variables('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[variables('wpCommon')]"
                     },
                     "subnetIdRedis": {
                         "value": "[reference('networkTemplate').outputs.subnetIdRedis.value]"
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(variables('lampCommon').baseTemplateUrl, 'redis.json', parameters('_artifactsLocationSasToken'))]"
+                    "uri": "[concat(variables('wpCommon').baseTemplateUrl, 'redis.json', parameters('_artifactsLocationSasToken'))]"
                 }
             }
         },
@@ -682,15 +682,15 @@
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "lampCommon": {
-                        "value": "[variables('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[variables('wpCommon')]"
                     },
                     "subnetIdSan": {
                         "value": "[reference('networkTemplate').outputs.subnetIdSan.value]"
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(variables('lampCommon').baseTemplateUrl,'gluster.json',parameters('_artifactsLocationSasToken'))]"
+                    "uri": "[concat(variables('wpCommon').baseTemplateUrl,'gluster.json',parameters('_artifactsLocationSasToken'))]"
                 }
             }
         },
@@ -719,22 +719,22 @@
                         "value": "[reference('networkTemplate').outputs.subnetIdSan.value]"
                     },
                     "node0IPAddr": {
-                        "value": "[variables('lampCommon').nfsHaNode0IP]"
+                        "value": "[variables('wpCommon').nfsHaNode0IP]"
                     },
                     "node1IPAddr": {
-                        "value": "[variables('lampCommon').nfsHaNode1IP]"
+                        "value": "[variables('wpCommon').nfsHaNode1IP]"
                     },
                     "nfsClientsIPRange": {
-                        "value": "[variables('lampCommon').nfsHaClientsIPRange]"
+                        "value": "[variables('wpCommon').nfsHaClientsIPRange]"
                     },
                     "lbFrontEndIpAddr": {
-                        "value": "[variables('lampCommon').nfsHaLbIP]"
+                        "value": "[variables('wpCommon').nfsHaLbIP]"
                     },
                     "enableAccelNwSwitch": {
                         "value": "[parameters('enableAccelNwForOtherVmsSwitch')]"
                     },
                     "vmSku": {
-                        "value": "[variables('lampCommon').fileServerVmSku]"
+                        "value": "[variables('wpCommon').fileServerVmSku]"
                     },
                     "adminUserName": {
                         "value": "[parameters('sshUsername')]"
@@ -743,7 +743,7 @@
                         "value": "[parameters('sshPublicKey')]"
                     },
                     "osType": {
-                        "value": "[variables('lampCommon').osType]"
+                        "value": "[variables('wpCommon').osType]"
                     },
                     "osDiskStorageType": {
                         "value": "[parameters('osDiskStorageType')]"
@@ -759,7 +759,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(variables('lampCommon').baseTemplateUrl, 'nfs-ha.json', parameters('_artifactsLocationSasToken'))]"
+                    "uri": "[concat(variables('wpCommon').baseTemplateUrl, 'nfs-ha.json', parameters('_artifactsLocationSasToken'))]"
                 }
             }
         },
@@ -776,8 +776,8 @@
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "lampCommon": {
-                        "value": "[variables('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[variables('wpCommon')]"
                     },
                     "dbFQDN": {
                         "value": "[reference('dbTemplate').outputs.dbFQDN.value]"
@@ -793,7 +793,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(variables('lampCommon').baseTemplateUrl,'vmsetupparams.json',parameters('_artifactsLocationSasToken'))]"
+                    "uri": "[concat(variables('wpCommon').baseTemplateUrl,'vmsetupparams.json',parameters('_artifactsLocationSasToken'))]"
                 }
             }
         },
@@ -814,8 +814,8 @@
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "lampCommon": {
-                        "value": "[variables('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[variables('wpCommon')]"
                     },
                     "subnetIdWeb": {
                         "value": "[reference('networkTemplate').outputs.subnetIdWeb.value]"
@@ -828,7 +828,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(variables('lampCommon').baseTemplateUrl,'controller.json',parameters('_artifactsLocationSasToken'))]"
+                    "uri": "[concat(variables('wpCommon').baseTemplateUrl,'controller.json',parameters('_artifactsLocationSasToken'))]"
                 }
             }
         },
@@ -846,8 +846,8 @@
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "lampCommon": {
-                        "value": "[variables('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[variables('wpCommon')]"
                     },
                     "subnetIdWeb": {
                         "value": "[reference('networkTemplate').outputs.subnetIdWeb.value]"
@@ -857,7 +857,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(variables('lampCommon').baseTemplateUrl,'webvmss.json',parameters('_artifactsLocationSasToken'))]"
+                    "uri": "[concat(variables('wpCommon').baseTemplateUrl,'webvmss.json',parameters('_artifactsLocationSasToken'))]"
                 }
             }
         }
@@ -865,7 +865,7 @@
     "outputs": {
         "siteURL": {
             "type": "string",
-            "value": "[variables('lampCommon').siteURL]"
+            "value": "[variables('wpCommon').siteURL]"
         },
         "controllerInstanceIP": {
             "type": "string",
@@ -877,11 +877,11 @@
         },
         "databaseAdminUsername": {
             "type": "string",
-            "value": "[variables('lampCommon').dbUsername]"
+            "value": "[variables('wpCommon').dbUsername]"
         },
         "databaseAdminPassword": {
             "type": "string",
-            "value": "[variables('lampCommon').dbLoginPassword]"
+            "value": "[variables('wpCommon').dbLoginPassword]"
         },
         "firstFrontendVmIP": {
             "type": "string",
@@ -889,11 +889,11 @@
         },
         "loadBalancerDNS": {
             "type": "string",
-            "value": "[variables('lampCommon').lbDns]"
+            "value": "[variables('wpCommon').lbDns]"
         },
         "loadBalancerSku": {
             "type": "string",
-            "value": "[variables('lampCommon').lbSku]"
+            "value": "[variables('wpCommon').lbSku]"
         }
     },
     "variables": {
@@ -907,7 +907,7 @@
         "documentation08": "    webvmss             - creates a vm scale set",
         "documentation09": "    controller          - creates a controller VM and deploys code",
         "documentation10": "GlusterFS Sizing guidance",
-        "lampCommon": {
+        "wpCommon": {
             "applicationDbName": "[parameters('CMSApplication')]",
             "cmsApplication": "[parameters('CMSApplication')]",
             "baseTemplateUrl": "[concat(parameters('_artifactsLocation'), 'nested/')]",

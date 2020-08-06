@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "lampCommon": {
+        "wpCommon": {
             "metadata": {
                 "description": "Common LAMP values"
             },
@@ -26,20 +26,20 @@
             "type": "Microsoft.Sql/servers",
             "apiVersion": "2019-06-01-preview",
             "kind": "",
-            "location": "[parameters('lampCommon').location]",
-            "name": "[parameters('lampCommon').serverName]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[parameters('wpCommon').serverName]",
             "properties": {
-                "administratorLogin": "[parameters('lampCommon').dbLogin]",
-                "administratorLoginPassword": "[parameters('lampCommon').dbLoginPassword]",
-                "version": "[parameters('lampCommon').mssqlVersion]"
+                "administratorLogin": "[parameters('wpCommon').dbLogin]",
+                "administratorLoginPassword": "[parameters('wpCommon').dbLoginPassword]",
+                "version": "[parameters('wpCommon').mssqlVersion]"
             },
             "resources": [
                 {
                     "apiVersion": "2014-04-01",
                     "dependsOn": [
-                        "[concat('Microsoft.Sql/servers/', parameters('lampCommon').serverName)]"
+                        "[concat('Microsoft.Sql/servers/', parameters('wpCommon').serverName)]"
                     ],
-                    "location": "[parameters('lampCommon').location]",
+                    "location": "[parameters('wpCommon').location]",
                     "name": "mssql-firewall-allow-lb",
                     "properties": {
                         "startIpAddress": "[parameters('lbPubIp')]",
@@ -50,9 +50,9 @@
                 {
                     "apiVersion": "2014-04-01",
                     "dependsOn": [
-                        "[concat('Microsoft.Sql/servers/', parameters('lampCommon').serverName)]"
+                        "[concat('Microsoft.Sql/servers/', parameters('wpCommon').serverName)]"
                     ],
-                    "location": "[parameters('lampCommon').location]",
+                    "location": "[parameters('wpCommon').location]",
                     "name": "mssql-firewall-allow-ctlr",
                     "properties": {
                         "startIpAddress": "[parameters('ctlrPubIp')]",
@@ -66,7 +66,7 @@
     "outputs": {
         "dbFQDN": {
             "type": "string",
-            "value": "[reference(parameters('lampCommon').serverName).fullyQualifiedDomainName]"
+            "value": "[reference(parameters('wpCommon').serverName).fullyQualifiedDomainName]"
         }
     },
     "variables": {

@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "lampCommon": {
+        "wpCommon": {
             "metadata": {
                 "description": "Common LAMP values"
             },
@@ -19,8 +19,8 @@
         {
             "type": "Microsoft.Compute/availabilitySets",
             "apiVersion": "2019-07-01",
-            "location": "[parameters('lampCommon').location]",
-            "name": "[parameters('lampCommon').gfsAvailabilitySetName]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[parameters('wpCommon').gfsAvailabilitySetName]",
             "properties": {
                 "platformFaultDomainCount": 2,
                 "platformUpdateDomainCount": 5
@@ -36,11 +36,11 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "copy": {
-                "count": "[parameters('lampCommon').fileServerVmCount]",
+                "count": "[parameters('wpCommon').fileServerVmCount]",
                 "name": "vmloop"
             },
             "dependsOn": [
-                "[concat('Microsoft.Compute/availabilitySets/',parameters('lampCommon').gfsAvailabilitySetName)]"
+                "[concat('Microsoft.Compute/availabilitySets/',parameters('wpCommon').gfsAvailabilitySetName)]"
             ],
             "name": "[concat('glustervm',copyindex())]",
             "properties": {
@@ -49,15 +49,15 @@
                     "counter": {
                         "value": "[copyindex()]"
                     },
-                    "lampCommon": {
-                        "value": "[parameters('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[parameters('wpCommon')]"
                     },
                     "subnetIdSan": {
                         "value": "[parameters('subnetIdSan')]"
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(parameters('lampCommon').baseTemplateUrl,'glustervm.json',parameters('lampCommon').artifactsSasToken)]"
+                    "uri": "[concat(parameters('wpCommon').baseTemplateUrl,'glustervm.json',parameters('wpCommon').artifactsSasToken)]"
                 }
             }
         }

@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "lampCommon": {
+        "wpCommon": {
             "metadata": {
                 "description": "Common LAMP values"
             },
@@ -11,25 +11,25 @@
     },
     "resources": [
         {
-            "condition": "[equals(parameters('lampCommon').customVnetId, '')]",
+            "condition": "[equals(parameters('wpCommon').customVnetId, '')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "vnetTemplate",
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "lampCommon": {
-                        "value": "[parameters('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[parameters('wpCommon')]"
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(parameters('lampCommon').baseTemplateUrl,'network-vnet.json',parameters('lampCommon').artifactsSasToken)]"
+                    "uri": "[concat(parameters('wpCommon').baseTemplateUrl,'network-vnet.json',parameters('wpCommon').artifactsSasToken)]"
                 }
             }
         },
         {
             "apiVersion": "2019-10-01",
-            "condition": "[parameters('lampCommon').ddosSwitch]",
+            "condition": "[parameters('wpCommon').ddosSwitch]",
             "dependsOn": [
                 "Microsoft.Resources/deployments/vnetTemplate"
             ],
@@ -39,18 +39,18 @@
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "lampCommon": {
-                        "value": "[parameters('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[parameters('wpCommon')]"
                     },
                     "vnetName": {
                         "value": "[variables('vnetName')]"
                     },
                     "vNetAddressSpace": {
-                        "value": "[if(equals(parameters('lampCommon').customVnetId, ''), concat(parameters('lampCommon').vNetAddressSpace,'/16'), reference(parameters('lampCommon').customVnetId, '2017-10-01').addressSpace.addressPrefixes[0])]"
+                        "value": "[if(equals(parameters('wpCommon').customVnetId, ''), concat(parameters('wpCommon').vNetAddressSpace,'/16'), reference(parameters('wpCommon').customVnetId, '2017-10-01').addressSpace.addressPrefixes[0])]"
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(parameters('lampCommon').baseTemplateUrl,'network-vnet-ddos.json',parameters('lampCommon').artifactsSasToken)]"
+                    "uri": "[concat(parameters('wpCommon').baseTemplateUrl,'network-vnet-ddos.json',parameters('wpCommon').artifactsSasToken)]"
                 }
             },
             "type": "Microsoft.Resources/deployments"
@@ -68,24 +68,24 @@
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "lampCommon": {
-                        "value": "[parameters('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[parameters('wpCommon')]"
                     },
                     "vnetName": {
                         "value": "[variables('vnetName')]"
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(parameters('lampCommon').baseTemplateUrl,'network-subnets.json',parameters('lampCommon').artifactsSasToken)]"
+                    "uri": "[concat(parameters('wpCommon').baseTemplateUrl,'network-subnets.json',parameters('wpCommon').artifactsSasToken)]"
                 }
             }
         },
         {
-            "condition": "[parameters('lampCommon').vnetGwDeploySwitch]",
+            "condition": "[parameters('wpCommon').vnetGwDeploySwitch]",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-11-01",
-            "location": "[parameters('lampCommon').location]",
-            "name": "[parameters('lampCommon').gatewayPublicIPName]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[parameters('wpCommon').gatewayPublicIPName]",
             "properties": {
                 "publicIPAllocationMethod": "Dynamic"
             },
@@ -94,26 +94,26 @@
             }
         },
         {
-            "condition": "[parameters('lampCommon').vnetGwDeploySwitch]",
+            "condition": "[parameters('wpCommon').vnetGwDeploySwitch]",
             "type": "Microsoft.Network/virtualNetworkGateways",
             "apiVersion": "2019-04-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('lampCommon').gatewayPublicIPName)]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('wpCommon').gatewayPublicIPName)]",
                 "Microsoft.Resources/deployments/subnetTemplate"
             ],
-            "location": "[parameters('lampCommon').location]",
-            "name": "[parameters('lampCommon').gatewayName]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[parameters('wpCommon').gatewayName]",
             "properties": {
                 "activeActive": false,
                 "enableBgp": false,
-                "gatewayType": "[parameters('lampCommon').gatewayType]",
+                "gatewayType": "[parameters('wpCommon').gatewayType]",
                 "ipConfigurations": [
                     {
                         "name": "vnet-Gateway-Config",
                         "properties": {
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('lampCommon').gatewayPublicIPName)]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('wpCommon').gatewayPublicIPName)]"
                             },
                             "subnet": {
                                 "id": "[variables('subnetIdGateway')]"
@@ -126,21 +126,21 @@
                     "tier": "VpnGw1",
                     "capacity": 2
                 },
-                "vpnType": "[parameters('lampCommon').vpnType]"
+                "vpnType": "[parameters('wpCommon').vpnType]"
             }
         },
         {
-            "condition": "[not(equals(parameters('lampCommon').httpsTermination, 'AppGw'))]",
+            "condition": "[not(equals(parameters('wpCommon').httpsTermination, 'AppGw'))]",
             "type": "Microsoft.Network/publicIPAddresses",
             "sku": {
-                "name": "[parameters('lampCommon').lbSku]"
+                "name": "[parameters('wpCommon').lbSku]"
             },
             "apiVersion": "2019-11-01",
-            "location": "[parameters('lampCommon').location]",
-            "name": "[parameters('lampCommon').lbPipName]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[parameters('wpCommon').lbPipName]",
             "properties": {
                 "dnsSettings": {
-                    "domainNameLabel": "[parameters('lampCommon').lbName]"
+                    "domainNameLabel": "[parameters('wpCommon').lbName]"
                 },
                 "publicIPAllocationMethod": "Static"
             },
@@ -149,29 +149,29 @@
             }
         },
         {
-            "condition": "[equals(parameters('lampCommon').httpsTermination, 'AppGw')]",
+            "condition": "[equals(parameters('wpCommon').httpsTermination, 'AppGw')]",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-11-01",
-            "location": "[parameters('lampCommon').location]",
-            "name": "[parameters('lampCommon').appGwPipName]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[parameters('wpCommon').appGwPipName]",
             "sku" : {
-                "name" : "[if(endswith(parameters('lampCommon').appGwSkuName,'v2'),'Standard','Basic')]"
+                "name" : "[if(endswith(parameters('wpCommon').appGwSkuName,'v2'),'Standard','Basic')]"
             },
             "properties": {
                 "dnsSettings": {
-                    "domainNameLabel": "[parameters('lampCommon').appGwName]"
+                    "domainNameLabel": "[parameters('wpCommon').appGwName]"
                 },
-                "publicIPAllocationMethod": "[if(endswith(parameters('lampCommon').appGwSkuName,'v2'),'Static','Dynamic')]"
+                "publicIPAllocationMethod": "[if(endswith(parameters('wpCommon').appGwSkuName,'v2'),'Static','Dynamic')]"
             }
         },
         {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-11-01",
-            "location": "[parameters('lampCommon').location]",
-            "name": "[parameters('lampCommon').ctlrPipName]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[parameters('wpCommon').ctlrPipName]",
             "properties": {
                 "dnsSettings": {
-                    "domainNameLabel": "[parameters('lampCommon').ctlrPipName]"
+                    "domainNameLabel": "[parameters('wpCommon').ctlrPipName]"
                 },
                 "publicIPAllocationMethod": "Static"
             },
@@ -180,26 +180,26 @@
             }
         },
         {
-            "condition": "[not(equals(parameters('lampCommon').httpsTermination, 'AppGw'))]",
+            "condition": "[not(equals(parameters('wpCommon').httpsTermination, 'AppGw'))]",
             "type": "Microsoft.Network/loadBalancers",
             "sku": {
-                "name": "[parameters('lampCommon').lbSku]"
+                "name": "[parameters('wpCommon').lbSku]"
             },
             "apiVersion": "2019-11-01",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/',parameters('lampCommon').lbPipName)]"
+                "[concat('Microsoft.Network/publicIPAddresses/',parameters('wpCommon').lbPipName)]"
             ],
-            "location": "[parameters('lampCommon').location]",
-            "name": "[parameters('lampCommon').lbName]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[parameters('wpCommon').lbName]",
             "properties": {
                 "backendAddressPools": [
                     {
-                        "name": "[parameters('lampCommon').extBeName ]"
+                        "name": "[parameters('wpCommon').extBeName ]"
                     }
                 ],
                 "frontendIPConfigurations": [
                     {
-                        "name": "[parameters('lampCommon').extFeName ]",
+                        "name": "[parameters('wpCommon').extFeName ]",
                         "properties": {
                             "publicIPAddress": {
                                 "id": "[variables('lbPipID')]"
@@ -249,7 +249,7 @@
                 ],
                 "probes": [
                     {
-                        "name": "[parameters('lampCommon').extProbeHTTP  ]",
+                        "name": "[parameters('wpCommon').extProbeHTTP  ]",
                         "properties": {
                             "intervalInSeconds": 5,
                             "numberOfProbes": 3,
@@ -258,7 +258,7 @@
                         }
                     },
                     {
-                        "name": "[parameters('lampCommon').extProbeHTTPS  ]",
+                        "name": "[parameters('wpCommon').extProbeHTTPS  ]",
                         "properties": {
                             "intervalInSeconds": 5,
                             "numberOfProbes": 3,
@@ -270,19 +270,19 @@
             }
         },
         {
-            "condition": "[equals(parameters('lampCommon').httpsTermination, 'AppGw')]",
+            "condition": "[equals(parameters('wpCommon').httpsTermination, 'AppGw')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "dependsOn": [
                 "Microsoft.Resources/deployments/subnetTemplate",
-                "[concat('Microsoft.Network/publicIPAddresses/',parameters('lampCommon').appGwPipName)]"
+                "[concat('Microsoft.Network/publicIPAddresses/',parameters('wpCommon').appGwPipName)]"
             ],
             "name": "appGwTemplate",
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "lampCommon": {
-                        "value": "[parameters('lampCommon')]"
+                    "wpCommon": {
+                        "value": "[parameters('wpCommon')]"
                     },
                     "subnetIdAppGw": {
                         "value": "[variables('subnetIdAppGw')]"
@@ -290,49 +290,49 @@
                     "sslCertData": {
                         "reference": {
                             "keyVault": {
-                                "id": "[parameters('lampCommon').appGwSslCertKeyVaultResourceId]"
+                                "id": "[parameters('wpCommon').appGwSslCertKeyVaultResourceId]"
                             },
-                            "secretName": "[parameters('lampCommon').appGwSslCertKeyVaultSecretName]"
+                            "secretName": "[parameters('wpCommon').appGwSslCertKeyVaultSecretName]"
                         }
                     }
                 },
                 "templateLink": {
-                    "uri": "[concat(parameters('lampCommon').baseTemplateUrl,'appgw.json',parameters('lampCommon').artifactsSasToken)]"
+                    "uri": "[concat(parameters('wpCommon').baseTemplateUrl,'appgw.json',parameters('wpCommon').artifactsSasToken)]"
                 }
             }
         }
     ],
     "variables": {
         "documentation01": "This sub-template creates a virtual network with a number of subnets and then creates the load-balancer (or an Azure Application Gateway) with public IP/dns",
-        "extBeID": "[concat(variables('extLbID'),'/backendAddressPools/',parameters('lampCommon').extBeName)]",
-        "extFeID": "[concat(variables('extLbID'),'/frontendIPConfigurations/',parameters('lampCommon').extFeName)]",
-        "extLbID": "[resourceId('Microsoft.Network/loadBalancers',parameters('lampCommon').lbName)]",
-        "extProbeHTTPID": "[concat(variables('extLbID'),'/probes/',parameters('lampCommon').extProbeHTTP)]",
-        "extProbeHTTPSID": "[concat(variables('extLbID'),'/probes/',parameters('lampCommon').extProbeHTTPS)]",
-        "lbPipID": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('lampCommon').lbPipName)]",
-        "ctlrPipID": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('lampCommon').ctlrPipName)]",
-        "customVnetIdArr":              "[split(parameters('lampCommon').customVnetId, '/')]",
-        "vnetSub":                      "[if(equals(parameters('lampCommon').customVnetId, ''), subscription().subscriptionId, variables('customVnetIdArr')[2])]",
-        "vnetRg":                       "[if(equals(parameters('lampCommon').customVnetId, ''), resourceGroup().name, variables('customVnetIdArr')[4])]",
-        "vnetName":                     "[if(equals(parameters('lampCommon').customVnetId, ''), parameters('lampCommon').vnetName, variables('customVnetIdArr')[8])]",
-        "customVnetSubnetIdWeb":        "[concat(parameters('lampCommon').customVnetId, '/subnets/', parameters('lampCommon').subnetWeb)]",
-        "customVnetSubnetIdSan":        "[concat(parameters('lampCommon').customVnetId, '/subnets/', parameters('lampCommon').subnetSan)]",
-        "customVnetSubnetIdRedis":      "[concat(parameters('lampCommon').customVnetId, '/subnets/', parameters('lampCommon').subnetRedis)]",
-        "customVnetSubnetIdGateway":    "[concat(parameters('lampCommon').customVnetId, '/subnets/', parameters('lampCommon').subnetGateway)]",
-        "customVnetSubnetIdAppGw":      "[concat(parameters('lampCommon').customVnetId, '/subnets/', parameters('lampCommon').subnetAppGw)]",
-        "subnetIdWeb":      "[if(equals(parameters('lampCommon').customVnetId, ''), resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('lampCommon').subnetWeb), variables('customVnetSubnetIdWeb'))]",
-        "subnetIdSan":      "[if(equals(parameters('lampCommon').customVnetId, ''), resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('lampCommon').subnetSan), variables('customVnetSubnetIdSan'))]",
-        "subnetIdRedis":    "[if(equals(parameters('lampCommon').customVnetId, ''), resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('lampCommon').subnetRedis), variables('customVnetSubnetIdRedis'))]",
-        "subnetIdGateway":  "[if(equals(parameters('lampCommon').customVnetId, ''), resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('lampCommon').subnetGateway), variables('customVnetSubnetIdGateway'))]",
-        "subnetIdAppGw":    "[if(equals(parameters('lampCommon').customVnetId, ''), resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('lampCommon').subnetAppGw), variables('customVnetSubnetIdAppGw'))]"
+        "extBeID": "[concat(variables('extLbID'),'/backendAddressPools/',parameters('wpCommon').extBeName)]",
+        "extFeID": "[concat(variables('extLbID'),'/frontendIPConfigurations/',parameters('wpCommon').extFeName)]",
+        "extLbID": "[resourceId('Microsoft.Network/loadBalancers',parameters('wpCommon').lbName)]",
+        "extProbeHTTPID": "[concat(variables('extLbID'),'/probes/',parameters('wpCommon').extProbeHTTP)]",
+        "extProbeHTTPSID": "[concat(variables('extLbID'),'/probes/',parameters('wpCommon').extProbeHTTPS)]",
+        "lbPipID": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('wpCommon').lbPipName)]",
+        "ctlrPipID": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('wpCommon').ctlrPipName)]",
+        "customVnetIdArr":              "[split(parameters('wpCommon').customVnetId, '/')]",
+        "vnetSub":                      "[if(equals(parameters('wpCommon').customVnetId, ''), subscription().subscriptionId, variables('customVnetIdArr')[2])]",
+        "vnetRg":                       "[if(equals(parameters('wpCommon').customVnetId, ''), resourceGroup().name, variables('customVnetIdArr')[4])]",
+        "vnetName":                     "[if(equals(parameters('wpCommon').customVnetId, ''), parameters('wpCommon').vnetName, variables('customVnetIdArr')[8])]",
+        "customVnetSubnetIdWeb":        "[concat(parameters('wpCommon').customVnetId, '/subnets/', parameters('wpCommon').subnetWeb)]",
+        "customVnetSubnetIdSan":        "[concat(parameters('wpCommon').customVnetId, '/subnets/', parameters('wpCommon').subnetSan)]",
+        "customVnetSubnetIdRedis":      "[concat(parameters('wpCommon').customVnetId, '/subnets/', parameters('wpCommon').subnetRedis)]",
+        "customVnetSubnetIdGateway":    "[concat(parameters('wpCommon').customVnetId, '/subnets/', parameters('wpCommon').subnetGateway)]",
+        "customVnetSubnetIdAppGw":      "[concat(parameters('wpCommon').customVnetId, '/subnets/', parameters('wpCommon').subnetAppGw)]",
+        "subnetIdWeb":      "[if(equals(parameters('wpCommon').customVnetId, ''), resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('wpCommon').subnetWeb), variables('customVnetSubnetIdWeb'))]",
+        "subnetIdSan":      "[if(equals(parameters('wpCommon').customVnetId, ''), resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('wpCommon').subnetSan), variables('customVnetSubnetIdSan'))]",
+        "subnetIdRedis":    "[if(equals(parameters('wpCommon').customVnetId, ''), resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('wpCommon').subnetRedis), variables('customVnetSubnetIdRedis'))]",
+        "subnetIdGateway":  "[if(equals(parameters('wpCommon').customVnetId, ''), resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('wpCommon').subnetGateway), variables('customVnetSubnetIdGateway'))]",
+        "subnetIdAppGw":    "[if(equals(parameters('wpCommon').customVnetId, ''), resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('wpCommon').subnetAppGw), variables('customVnetSubnetIdAppGw'))]"
     },
     "outputs": {
         "lbPubIp": {
-            "value": "[if(equals(parameters('lampCommon').httpsTermination, 'AppGw'), '0.0.0.0', reference(parameters('lampCommon').lbPipName, '2017-10-01').ipAddress)]",
+            "value": "[if(equals(parameters('wpCommon').httpsTermination, 'AppGw'), '0.0.0.0', reference(parameters('wpCommon').lbPipName, '2017-10-01').ipAddress)]",
             "type": "string"
         },
         "ctlrPubIp": {
-            "value": "[reference(parameters('lampCommon').ctlrPipName, '2017-10-01').ipAddress]",
+            "value": "[reference(parameters('wpCommon').ctlrPipName, '2017-10-01').ipAddress]",
             "type": "string"
         },
         "ctlrPubIpId": {

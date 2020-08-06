@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "lampCommon": {
+        "wpCommon": {
             "metadata": {
                 "description": "Common LAMP values"
             },
@@ -19,8 +19,8 @@
         {
             "type": "Microsoft.Cache/Redis",
             "apiVersion": "2019-07-01",
-            "location": "[parameters('lampCommon').location]",
-            "name": "[parameters('lampCommon').redisCacheName]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[parameters('wpCommon').redisCacheName]",
             "properties": {
                 "enableNonSslPort": true,
                 "sku": {
@@ -35,7 +35,7 @@
     "variables": {
         "documentation1": "This sub-template creates a redis cache.  It expects certain values in the 'common' datastructure.",
         "documentation2": " redisCacheName - name of cache",
-        "redisResourceId": "[resourceId('Microsoft.Cache/Redis', parameters('lampCommon').redisCacheName)]"
+        "redisResourceId": "[resourceId('Microsoft.Cache/Redis', parameters('wpCommon').redisCacheName)]"
     },
     "outputs": {
         "redisKey": {

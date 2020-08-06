@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "lampCommon": {
+        "wpCommon": {
             "metadata": {
                 "description": "Common LAMP values"
             },
@@ -13,12 +13,12 @@
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2019-11-01",
-            "location": "[parameters('lampCommon').location]",
-            "name": "[parameters('lampCommon').vnetName]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[parameters('wpCommon').vnetName]",
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "[concat(parameters('lampCommon').vNetAddressSpace,'/16')]"
+                        "[concat(parameters('wpCommon').vNetAddressSpace,'/16')]"
                     ]
                 }
             }

@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "lampCommon": {
+        "wpCommon": {
             "metadata": {
                 "description": "Common LAMP values"
             },
@@ -24,14 +24,14 @@
     "resources": [
         {
             "type": "Microsoft.Network/applicationGateways",
-            "name": "[parameters('lampCommon').appGwName]",
-            "location": "[parameters('lampCommon').location]",
+            "name": "[parameters('wpCommon').appGwName]",
+            "location": "[parameters('wpCommon').location]",
             "apiVersion": "2019-11-01",
             "properties": {
                 "sku": {
-                    "name": "[parameters('lampCommon').appGwSkuName]",
-                    "tier": "[parameters('lampCommon').appGwSkuTier]",
-                    "capacity": "[parameters('lampCommon').appGwSkuCapacity]"
+                    "name": "[parameters('wpCommon').appGwSkuName]",
+                    "tier": "[parameters('wpCommon').appGwSkuTier]",
+                    "capacity": "[parameters('wpCommon').appGwSkuCapacity]"
                 },
                 "gatewayIPConfigurations": [
                     {
@@ -166,8 +166,8 @@
     ],
     "variables": {
         "documentation1": "This sub-template creates an Azure Application Gateway for SSL offloading. It expects certain values in the 'common' datastructure.",
-        "appGwBePoolName": "[parameters('lampCommon').appGwBePoolName]",
-        "appGwPublicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('lampCommon').appGwPipName)]",
-        "appGwID": "[resourceId('Microsoft.Network/applicationGateways', parameters('lampCommon').appGwName)]"
+        "appGwBePoolName": "[parameters('wpCommon').appGwBePoolName]",
+        "appGwPublicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('wpCommon').appGwPipName)]",
+        "appGwID": "[resourceId('Microsoft.Network/applicationGateways', parameters('wpCommon').appGwName)]"
     }
 }

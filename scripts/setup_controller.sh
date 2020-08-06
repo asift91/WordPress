@@ -24,11 +24,11 @@ set -ex
 
 #parameters 
 {
-    lamp_on_azure_configs_json_path=${1}
+    wordpress_on_azure_configs_json_path=${1}
 
     . ./helper_functions.sh
 
-    get_setup_params_from_configs_json $lamp_on_azure_configs_json_path || exit 99
+    get_setup_params_from_configs_json $wordpress_on_azure_configs_json_path || exit 99
 
     echo $glusterNode                   >> /tmp/vars.txt
     echo $glusterVolume                 >> /tmp/vars.txt
@@ -60,8 +60,8 @@ set -ex
     echo $wpDbUserPass                  >>/tmp/vars.txt
     echo $wpVersion                     >>/tmp/vars.txt
     echo $sshUsername                   >>/tmp/vars.txt
-    echo $storageAccountType >>/tmp/vars.txt
-    echo $fileServerDiskSize >>/tmp/vars.txt
+    echo $storageAccountType            >>/tmp/vars.txt
+    echo $fileServerDiskSize            >>/tmp/vars.txt
 
     check_fileServerType_param $fileServerType
 
@@ -78,15 +78,15 @@ set -ex
     config_fail2ban
 
     # create gluster, nfs or Azure Files mount point
-    mkdir -p /azlamp
+    mkdir -p /wordpress
 
     if [ $fileServerType = "gluster" ]; then
         # configure gluster repository & install gluster client
         add-apt-repository ppa:gluster/glusterfs-3.10 -y                 >> /tmp/apt1.log
     elif [ $fileServerType = "nfs" ]; then
         # configure NFS server and export
-        setup_raid_disk_and_filesystem /azlamp /dev/md1 /dev/md1p1
-        configure_nfs_server_and_export /azlamp
+        setup_raid_disk_and_filesystem /wordpress /dev/md1 /dev/md1p1
+        configure_nfs_server_and_export /wordpress
     fi
 
     apt-get -y update                                                   >> /tmp/apt2.log
@@ -110,7 +110,7 @@ set -ex
         apt-get update
         apt-get install -y postgresql-client-9.6
     fi
-    
+
     if [ "$fileServerType" = "azurefiles" ]; then
     # install azure cli & setup container
         echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \
@@ -124,16 +124,16 @@ set -ex
 
     if [ $fileServerType = "gluster" ]; then
         # mount gluster files system
-        echo -e '\n\rInstalling GlusterFS on '$glusterNode':/'$glusterVolume '/azlamp\n\r' 
-        setup_and_mount_gluster_share $glusterNode $glusterVolume /azlamp
+        echo -e '\n\rInstalling GlusterFS on '$glusterNode':/'$glusterVolume '/wordpress\n\r' 
+        setup_and_mount_gluster_share $glusterNode $glusterVolume /wordpress
     elif [ $fileServerType = "nfs-ha" ]; then
         # mount NFS-HA export
-        echo -e '\n\rMounting NFS export from '$nfsHaLbIP' on /azlamp\n\r'
-        configure_nfs_client_and_mount $nfsHaLbIP $nfsHaExportPath /azlamp
+        echo -e '\n\rMounting NFS export from '$nfsHaLbIP' on /wordpress\n\r'
+        configure_nfs_client_and_mount $nfsHaLbIP $nfsHaExportPath /wordpress
     elif [ $fileServerType = "nfs-byo" ]; then
         # mount NFS-BYO export
-        echo -e '\n\rMounting NFS export from '$nfsByoIpExportPath' on /azlamp\n\r'
-        configure_nfs_client_and_mount0 $nfsByoIpExportPath /azlamp
+        echo -e '\n\rMounting NFS export from '$nfsByoIpExportPath' on /wordpress\n\r'
+        configure_nfs_client_and_mount0 $nfsByoIpExportPath /wordpress
     fi
     
     # install pre-requisites
@@ -143,7 +143,7 @@ set -ex
     # passing php versions $phpVersion
     apt-get -y --force-yes install nginx php$phpVersion-fpm php$phpVersion php$phpVersion-cli php$phpVersion-curl php$phpVersion-zip >> /tmp/apt5.log
 
-    # LAMP requirements
+    # WordPress requirements
     apt-get -y update > /dev/null
     # passing php versions $phpVersion
     apt-get install -y --force-yes php$phpVersion-common php$phpVersion-soap php$phpVersion-json php$phpVersion-redis php$phpVersion-bcmath php$phpVersion-gd php$phpVersion-xmlrpc php$phpVersion-intl php$phpVersion-xml php$phpVersion-bz2 php-pear php$phpVersion-mbstring php$phpVersion-dev mcrypt >> /tmp/apt6.log
@@ -157,10 +157,10 @@ set -ex
         apt-get install -y --force-yes php$phpVersion-pgsql
     fi
 
-    # Set up initial LAMP dirs
-    mkdir -p /azlamp/html
-    mkdir -p /azlamp/certs
-    mkdir -p /azlamp/data
+    # Set up initial WordPress dirs
+    mkdir -p /wordpress/html
+    mkdir -p /wordpress/certs
+    mkdir -p /wordpress/data
 
     # Build nginx config
     create_main_nginx_conf_on_controller $httpsTermination
@@ -182,35 +182,35 @@ set -ex
     systemctl stop php${PhpVer}-fpm
 
     if [ $fileServerType = "azurefiles" ]; then
-        # Delayed copy of azlamp installation to the Azure Files share
+        # Delayed copy of WordPress installation to the Azure Files share
 
-        # First rename azlamp directory to something else
-        mv /azlamp /azlamp_old_delete_me
-        # Then create the azlamp share
-        echo -e '\n\rCreating an Azure Files share for azlamp'
-        create_azure_files_share azlamp $storageAccountName $storageAccountKey /tmp/wabs.log $fileServerDiskSize
+        # First rename wordpress directory to something else
+        mv /wordpress /wordpress_old_delete_me
+        # Then create the wordpress share
+        echo -e '\n\rCreating an Azure Files share for wordpress'
+        create_azure_files_share wordpress $storageAccountName $storageAccountKey /tmp/wabs.log $fileServerDiskSize
         # Set up and mount Azure Files share. Must be done after nginx is installed because of www-data user/group
-        echo -e '\n\rSetting up and mounting Azure Files share on //'$storageAccountName'.file.core.windows.net/azlamp on /azlamp\n\r'
-        setup_and_mount_azure_files_share azlamp $storageAccountName $storageAccountKey
+        echo -e '\n\rSetting up and mounting Azure Files share on //'$storageAccountName'.file.core.windows.net/wordpress on /wordpress\n\r'
+        setup_and_mount_azure_files_share wordpress $storageAccountName $storageAccountKey
         # Move the local installation over to the Azure Files
-        echo -e '\n\rMoving locally installed azlamp over to Azure Files'
-        cp -a /azlamp_old_delete_me/* /azlamp || true # Ignore case sensitive directory copy failure
-        # rm -rf /azlamp_old_delete_me || true # Keep the files just in case
+        echo -e '\n\rMoving locally installed wordpress over to Azure Files'
+        cp -a /wordpress_old_delete_me/* /wordpress || true # Ignore case sensitive directory copy failure
+        # rm -rf /wordpress_old_delete_me || true # Keep the files just in case
     fi
 
-    # chmod /azlamp for Azure NetApp Files (its default is 770!)
+    # chmod /wordpress for Azure NetApp Files (its default is 770!)
     if [ $fileServerType = "nfs-byo" ]; then
-        chmod +rx /azlamp
+        chmod +rx /wordpress
     fi
 
     create_last_modified_time_update_script
     run_once_last_modified_time_update_script
 
-    # Install scripts for LAMP
-    mkdir -p /azlamp/bin
-    cp helper_functions.sh /azlamp/bin/utils.sh
-    chmod +x /azlamp/bin/utils.sh
-    cat <<EOF > /azlamp/bin/update-vmss-config
+    # Install scripts for WordPress
+    mkdir -p /wordpress/bin
+    cp helper_functions.sh /wordpress/bin/utils.sh
+    chmod +x /wordpress/bin/utils.sh
+    cat <<EOF > /wordpress/bin/update-vmss-config
 #!/bin/bash
 
 # Lookup the version number corresponding to the next process to be run on the machine
@@ -227,7 +227,7 @@ do
         # Add another block with the next version number for any further site addition/removal.
 
         #1)
-        #    . /azlamp/bin/utils.sh
+        #    . /wordpress/bin/utils.sh
         #    reset_all_sites_on_vmss true VMSS
         #;;
 
@@ -245,11 +245,11 @@ done
 EOF
     function install_wordpress_application {
         local dnsSite=$siteFQDN
-        local wpTitle=LAMP-WordPress
+        local wpTitle=Azure-WordPress
         local wpAdminUser=admin
         local wpAdminPassword=$wpAdminPass
         local wpAdminEmail=admin@$dnsSite
-        local wpPath=/azlamp/html/$dnsSite
+        local wpPath=/wordpress/html/$dnsSite
         local wpDbUserId=admin
         local wpDbUserPass=$wpDbUserPass
 
@@ -257,7 +257,7 @@ EOF
         create_database $dbIP $dbadminloginazure $dbadminpass $applicationDbName $wpDbUserId $wpDbUserPass
         # Download the WordPress application compressed file
         download_wordpress $dnsSite $wpVersion
-        # Links the data content folder to shared folder.. /azlamp/data
+        # Links the data content folder to shared folder.. /wordpress/data
         linking_data_location $dnsSite
         # Creates a wp-config file for WordPress
         create_wpconfig $dbIP $applicationDbName $dbadminloginazure $dbadminpass $dnsSite

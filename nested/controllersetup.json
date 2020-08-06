@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "lampCommon": {
+        "wpCommon": {
             "metadata": {
                 "description": "Common LAMP values"
             },
@@ -13,19 +13,19 @@
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2019-07-01",
-            "location": "[parameters('lampCommon').location]",
-            "name": "[concat(parameters('lampCommon').ctlrVmName,'/','setup_controller')]",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[concat(parameters('wpCommon').ctlrVmName,'/','setup_controller')]",
             "properties": {
                 "autoUpgradeMinorVersion": true,
                 "publisher": "Microsoft.Azure.Extensions",
                 "settings": {
                     "fileUris": [
                         "[variables('scriptUri')]",
-                        "[parameters('lampCommon').commonFunctionsScriptUri]"
+                        "[parameters('wpCommon').commonFunctionsScriptUri]"
                     ]
                 },
                 "protectedSettings":{
-                    "commandToExecute": "[concat('bash ', parameters('lampCommon').controllerInstallScriptFilename, ' ', parameters('lampCommon').lampOnAzureConfigsJsonPath)]"
+                    "commandToExecute": "[concat('bash ', parameters('wpCommon').controllerInstallScriptFilename, ' ', parameters('wpCommon').lampOnAzureConfigsJsonPath)]"
                 },
                 "type": "CustomScript",
                 "typeHandlerVersion": "2.0"
@@ -48,6 +48,6 @@
         "documentation10": "    mssqlDbEdition              - MS SQL edition tier",
         "documentation11": "    mssqlDbSize                 - MS SQL database size",
 
-        "scriptUri": "[concat(parameters('lampCommon').scriptLocation,parameters('lampCommon').controllerInstallScriptFilename,parameters('lampCommon').artifactsSasToken)]"
+        "scriptUri": "[concat(parameters('wpCommon').scriptLocation,parameters('wpCommon').controllerInstallScriptFilename,parameters('wpCommon').artifactsSasToken)]"
     }
 }
