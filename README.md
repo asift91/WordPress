@@ -29,3 +29,15 @@ Below are a list of pre-defined/restricted deployment options based on typical d
 | Small to Mid-Size | Supporting up to 1,000 concurrent users. This deployment will use NFS (with no high availability) and MySQL (8 vCores), without other options like Redis Cache.|[![Deploy to Azure Minimally](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FWordPress%2Fmain%2Fazuredeploy-small2mid-noha.json)
 |Large size deployment (with high availability)| Supporting more than 2,000 concurrent users. This deployment will use Azure Files Premium, MySQL (16 vCores) and Redis Cache. |[![Deploy to Azure Minimally](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FWordPress%2Fmain%2Fazuredeploy-large-ha.json)
 | Maximum |This maximal deployment will use Azure Files Premium, MySQL with the highest SKU, Redis Cache, and pretty large storage sizes (for both data disks and DB).|[![Deploy to Azure Maximally](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FWordPress%2Fmain%2Fazuredeploy-maximal.json)
+
+## Stack Architecture
+
+This template set deploys the following infrastructure core to your WordPress instance:
+
+- Autoscaling web frontend layer (with nginx and PHP-FPM)
+- Private Virtual Network for frontend instances
+- Controller VM running cron and handling syslog for the autoscaling cluster
+- [Azure Load balancer](https://azure.microsoft.com/en-us/services/load-balancer/) to balance across the autoscaling instances
+- [Azure Database for MySQL](https://azure.microsoft.com/en-us/services/mysql/) or [Azure Database for PostgreSQL](https://azure.microsoft.com/en-us/services/postgresql/) or [Azure SQL Database](https://azure.microsoft.com/en-us/services/sql-database/)
+- Dual [GlusterFS](https://www.gluster.org/) nodes or Azure Files or NFS for highly available access to WordPress files
+
