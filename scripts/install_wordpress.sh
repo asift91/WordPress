@@ -60,7 +60,6 @@ set -ex
     echo $wpDbUserPass                  >>/tmp/vars.txt
     echo $wpVersion                     >>/tmp/vars.txt
     echo $sshUsername                   >>/tmp/vars.txt
-    echo $storageAccountType            >>/tmp/vars.txt
     echo $fileServerDiskSize            >>/tmp/vars.txt
 
     check_fileServerType_param $fileServerType

@@ -50,7 +50,14 @@
                 "redisDns": "[parameters('wpCommon').redisDns]",
                 "redisKey": "[parameters('redisKey')]",
                 "syslogServer": "[parameters('wpCommon').ctlrVmName]",
-                "htmlLocalCopySwitch": "[parameters('wpCommon').htmlLocalCopySwitch]"
+                "htmlLocalCopySwitch": "[parameters('wpCommon').htmlLocalCopySwitch]",
+                "cmsApplication": "[parameters('wpCommon').CMSApplication]",
+                "lbDns": "[parameters('wpCommon').lbDns]",
+                "applicationDbName": "[parameters('wpCommon').applicationDbName]",
+                "wpAdminPass": "[parameters('wpCommon').wpAdminPass]",
+                "wpDbUserPass": "[parameters('wpCommon').wpDbUserPass]",
+                "wpVersion": "[parameters('wpCommon').wpVersion]",
+                "sshUsername": "[parameters('wpCommon').sshUsername]"
             },
             "dbServerProfile": {
                 "type": "[parameters('wpCommon').dbServerType]",
@@ -76,13 +83,7 @@
                 "phpVersion": "[parameters('wpCommon').phpVersion]"
             },
             "applicationProfile": {
-                "cmsApplication": "[parameters('wpCommon').CMSApplication]",
-                "lbDns": "[parameters('wpCommon').lbDns]",
-                "applicationDbName": "[parameters('wpCommon').applicationDbName]",
-                "wpAdminPass": "[parameters('wpCommon').wpAdminPass]",
-                "wpDbUserPass": "[parameters('wpCommon').wpDbUserPass]",
-                "wpVersion": "[parameters('wpCommon').wpVersion]",
-                "sshUsername": "[parameters('wpCommon').sshUsername]"
+                
             }
         }
     },

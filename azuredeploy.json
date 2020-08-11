@@ -965,7 +965,7 @@
             "lbName": "[concat('lb-',variables('resourceprefix'))]",
             "lbPipName": "[concat('lb-pubip-',variables('resourceprefix'))]",
             "location": "[parameters('location')]",
-            "controllerInstallScriptFilename": "setup_controller.sh",
+            "controllerInstallScriptFilename": "install_wordpress.sh",
             "wordpressOnAzureConfigsJsonPath": "/var/lib/cloud/instance/wp_on_azure_configs.json",
             "mssqlDbServiceObjectiveName": "[parameters('mssqlDbServiceObjectiveName')]",
             "mssqlDbSize": "[parameters('mssqlDbSize')]",
