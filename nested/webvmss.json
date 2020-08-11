@@ -60,7 +60,7 @@
                                         ]
                                     },
                                     "protectedSettings":{
-                                        "commandToExecute": "[concat('bash ', parameters('wpCommon').webServerSetupScriptFilename, ' ', parameters('wpCommon').lampOnAzureConfigsJsonPath)]"
+                                        "commandToExecute": "[concat('bash ', parameters('wpCommon').webServerSetupScriptFilename, ' ', parameters('wpCommon').wordpressOnAzureConfigsJsonPath)]"
                                     },
                                     "type": "CustomScript",
                                     "typeHandlerVersion": "2.0"
@@ -94,7 +94,7 @@
                     "osProfile": {
                         "adminUsername": "[parameters('wpCommon').sshUsername]",
                         "computerNamePrefix": "[parameters('wpCommon').vmssName]",
-                        "customData": "[base64(concat('#cloud-config\nwrite_files:\n- encoding: b64\n  content: ', base64(string(parameters('vmSetupParamsObj'))), '\n  owner: root:root\n  path: ', parameters('wpCommon').lampOnAzureConfigsJsonPath, '\n  permissions: ', variables('singleQuote'), '0400', variables('singleQuote')))]",
+                        "customData": "[base64(concat('#cloud-config\nwrite_files:\n- encoding: b64\n  content: ', base64(string(parameters('vmSetupParamsObj'))), '\n  owner: root:root\n  path: ', parameters('wpCommon').wordpressOnAzureConfigsJsonPath, '\n  permissions: ', variables('singleQuote'), '0400', variables('singleQuote')))]",
                         "linuxConfiguration": {
                             "disablePasswordAuthentication": true,
                             "ssh": {

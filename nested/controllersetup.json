@@ -4,7 +4,7 @@
     "parameters": {
         "wpCommon": {
             "metadata": {
-                "description": "Common LAMP values"
+                "description": "Common WordPress values"
             },
             "type": "object"
         }
@@ -25,7 +25,7 @@
                     ]
                 },
                 "protectedSettings":{
-                    "commandToExecute": "[concat('bash ', parameters('wpCommon').controllerInstallScriptFilename, ' ', parameters('wpCommon').lampOnAzureConfigsJsonPath)]"
+                    "commandToExecute": "[concat('bash ', parameters('wpCommon').controllerInstallScriptFilename, ' ', parameters('wpCommon').wordpressOnAzureConfigsJsonPath)]"
                 },
                 "type": "CustomScript",
                 "typeHandlerVersion": "2.0"

@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "TypeOfTemplate":{
-            "defaultValue":"LAMP ARM TEMPLATE",
+            "defaultValue":"WordPress ARM TEMPLATE",
             "type":"string"
         },
         "_artifactsLocation": {
@@ -51,7 +51,7 @@
         "htmlLocalCopySwitch": {
             "defaultValue": true,
             "metadata": {
-                "description": "Switch to create a local copy of /azlamp/html or not"
+                "description": "Switch to create a local copy of /wordpress/html or not"
             },
             "type": "bool"
         },
@@ -91,7 +91,7 @@
         "siteURL": {
             "defaultValue": "www.example.org",
             "metadata": {
-                "description": "URL for LAMP site"
+                "description": "URL for WordPress site"
             },
             "type": "string"
         },
@@ -485,14 +485,14 @@
         "customVnetId": {
             "defaultValue": "",
             "metadata": {
-                "description": "Azure Resource ID of the Azure virtual network where you want to deploy your LAMP resources. A vnet resource ID is of the following format: /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxxxxx/resourceGroups/gggg/providers/Microsoft.Network/virtualNetworks/vvvv. Note that this virtual network must be on the same Azure location as this template deployment location. If this parameter is blank, a new Azure virtual network will be created and used. In that case, the address space of the newly created virtual network will be */16 of the following vNetAddressSpace parameter value below."
+                "description": "Azure Resource ID of the Azure virtual network where you want to deploy your WordPress resources. A vnet resource ID is of the following format: /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxxxxx/resourceGroups/gggg/providers/Microsoft.Network/virtualNetworks/vvvv. Note that this virtual network must be on the same Azure location as this template deployment location. If this parameter is blank, a new Azure virtual network will be created and used. In that case, the address space of the newly created virtual network will be */16 of the following vNetAddressSpace parameter value below."
             },
             "type": "string"
         },
         "vNetAddressSpace": {
             "defaultValue": "172.31.0.0",
             "metadata": {
-                "description": "Address range for the LAMP virtual network and various subnets - presumed /16 for a newly created vnet in case customVnetId is blank. Further subneting (a number of */24 subnets starting from the xxx.yyy.zzz.0/24 will be created on a newly created vnet or your BYO-vnet (specified in customVnetId parameter)."
+                "description": "Address range for the WordPress virtual network and various subnets - presumed /16 for a newly created vnet in case customVnetId is blank. Further subneting (a number of */24 subnets starting from the xxx.yyy.zzz.0/24 will be created on a newly created vnet or your BYO-vnet (specified in customVnetId parameter)."
             },
             "type": "string"
         },
@@ -897,7 +897,7 @@
         }
     },
     "variables": {
-        "documentation01": "This main-template calls multiple sub-templates to create the LAMP system",
+        "documentation01": "This main-template calls multiple sub-templates to create the WordPress system",
         "documentation02": "    recoveryservices0   - dummy template (see next statement)",
         "documentation03": "    recoveryservices1   - creates a recovery vault that will be subsequently used by the VM Backup - a paramter swtich controls whethe is is called or bypassed",
         "documentation04": "    redis               - creates a redis cache",
@@ -966,7 +966,7 @@
             "lbPipName": "[concat('lb-pubip-',variables('resourceprefix'))]",
             "location": "[parameters('location')]",
             "controllerInstallScriptFilename": "setup_controller.sh",
-            "lampOnAzureConfigsJsonPath": "/var/lib/cloud/instance/lamp_on_azure_configs.json",
+            "wordpressOnAzureConfigsJsonPath": "/var/lib/cloud/instance/wp_on_azure_configs.json",
             "mssqlDbServiceObjectiveName": "[parameters('mssqlDbServiceObjectiveName')]",
             "mssqlDbSize": "[parameters('mssqlDbSize')]",
             "mssqlDbEdition": "[parameters('mssqlDbEdition')]",

@@ -4,7 +4,7 @@
     "parameters": {
         "wpCommon": {
             "metadata": {
-                "description": "Common LAMP values"
+                "description": "Common WordPress values"
             },
             "type": "object"
         },
@@ -43,7 +43,7 @@
                 "thumbprintSslCert": "[parameters('wpCommon').thumbprintSslCert]",
                 "thumbprintCaCert": "[parameters('wpCommon').thumbprintCaCert]"
             },
-            "lampProfile": {
+            "wordpressProfile": {
                 "storageAccountName": "[parameters('storageAccountName')]",
                 "storageAccountKey": "[parameters('storageAccountKey')]",
                 "redisDeploySwitch": "[parameters('wpCommon').redisDeploySwitch]",

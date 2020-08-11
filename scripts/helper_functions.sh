@@ -25,7 +25,6 @@ function get_setup_params_from_configs_json
     export siteFQDN=$(echo $json | jq -r .siteProfile.siteURL)
     export httpsTermination=$(echo $json | jq -r .siteProfile.httpsTermination)
     export dbIP=$(echo $json | jq -r .dbServerProfile.fqdn)
-    export adminpass=$(echo $json | jq -r .wordpressProfile.adminPassword)
     export dbadminlogin=$(echo $json | jq -r .dbServerProfile.adminLogin)
     export dbadminloginazure=$(echo $json | jq -r .dbServerProfile.adminLoginAzure)
     export dbadminpass=$(echo $json | jq -r .dbServerProfile.adminPassword)

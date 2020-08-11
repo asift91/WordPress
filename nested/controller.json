@@ -4,7 +4,7 @@
     "parameters": {
         "wpCommon": {
             "metadata": {
-                "description": "Common LAMP values"
+                "description": "Common WordPress values"
             },
             "type": "object"
         },
@@ -122,7 +122,7 @@
                     "adminUsername": "[parameters('wpCommon').sshUsername]",
                     "computerName": "[parameters('wpCommon').ctlrVmName]",
                     "secrets": "[parameters('wpCommon').ctlrVmSecrets]",
-                    "customData": "[base64(concat('#cloud-config\nwrite_files:\n- encoding: b64\n  content: ', base64(string(parameters('vmSetupParamsObj'))), '\n  owner: root:root\n  path: ', parameters('wpCommon').lampOnAzureConfigsJsonPath, '\n  permissions: ', variables('singleQuote'), '0400', variables('singleQuote')))]",
+                    "customData": "[base64(concat('#cloud-config\nwrite_files:\n- encoding: b64\n  content: ', base64(string(parameters('vmSetupParamsObj'))), '\n  owner: root:root\n  path: ', parameters('wpCommon').wordpressOnAzureConfigsJsonPath, '\n  permissions: ', variables('singleQuote'), '0400', variables('singleQuote')))]",
                     "linuxConfiguration": {
                         "disablePasswordAuthentication": true,
                         "ssh": {

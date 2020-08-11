@@ -10,7 +10,7 @@
         },
         "wpCommon": {
             "metadata": {
-                "description": "Common LAMP values"
+                "description": "Common WordPress values"
             },
             "type": "object"
         },
