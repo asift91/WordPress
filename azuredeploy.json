@@ -897,7 +897,7 @@
         }
     },
     "variables": {
-        "documentation01": "This main-template calls multiple sub-templates to create the WordPress system",
+        "documentation01": "This main-template calls multiple sub-templates to install the WordPress",
         "documentation02": "    recoveryservices0   - dummy template (see next statement)",
         "documentation03": "    recoveryservices1   - creates a recovery vault that will be subsequently used by the VM Backup - a paramter swtich controls whethe is is called or bypassed",
         "documentation04": "    redis               - creates a redis cache",

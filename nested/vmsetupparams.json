@@ -81,9 +81,6 @@
             },
             "phpProfile": {
                 "phpVersion": "[parameters('wpCommon').phpVersion]"
-            },
-            "applicationProfile": {
-                
             }
         }
     },
