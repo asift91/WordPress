@@ -53,14 +53,14 @@ set -ex
     echo $thumbprintCaCert              >> /tmp/vars.txt
     echo $nfsByoIpExportPath            >> /tmp/vars.txt
     echo $phpVersion                    >> /tmp/vars.txt
-    echo $cmsApplication                >>/tmp/vars.txt
-    echo $lbDns                         >>/tmp/vars.txt
-    echo $applicationDbName             >>/tmp/vars.txt
-    echo $wpAdminPass                   >>/tmp/vars.txt
-    echo $wpDbUserPass                  >>/tmp/vars.txt
-    echo $wpVersion                     >>/tmp/vars.txt
-    echo $sshUsername                   >>/tmp/vars.txt
-    echo $fileServerDiskSize            >>/tmp/vars.txt
+    echo $cmsApplication                >> /tmp/vars.txt
+    echo $lbDns                         >> /tmp/vars.txt
+    echo $applicationDbName             >> /tmp/vars.txt
+    echo $wpAdminPass                   >> /tmp/vars.txt
+    echo $wpDbUserPass                  >> /tmp/vars.txt
+    echo $wpVersion                     >> /tmp/vars.txt
+    echo $sshUsername                   >> /tmp/vars.txt
+    echo $fileServerDiskSize            >> /tmp/vars.txt
 
     check_fileServerType_param $fileServerType
 
@@ -171,6 +171,9 @@ set -ex
 
     # restart Nginx
     systemctl restart nginx
+
+    # configure varnish
+    configure_varnish
 
     # Master config for syslog
     config_syslog_on_controller

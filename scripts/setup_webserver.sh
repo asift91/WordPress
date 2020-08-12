@@ -208,6 +208,9 @@ EOF
   # restart nginx
   systemctl restart nginx
 
+  # configure varnish
+  configure_varnish
+
   # fpm config - overload this 
   cat <<EOF > /etc/php/${PhpVer}/fpm/pool.d/www.conf
 [www]
