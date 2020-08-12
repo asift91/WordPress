@@ -140,7 +140,7 @@ set -ex
 
     # install the entire stack
     # passing php versions $phpVersion
-    apt-get -y --force-yes install nginx php$phpVersion-fpm php$phpVersion php$phpVersion-cli php$phpVersion-curl php$phpVersion-zip >> /tmp/apt5.log
+    apt-get -y --force-yes install nginx php$phpVersion-fpm php$phpVersion php$phpVersion-cli php$phpVersion-curl php$phpVersion-zip varnish >> /tmp/apt5.log
 
     # WordPress requirements
     apt-get -y update > /dev/null
