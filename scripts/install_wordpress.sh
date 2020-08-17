@@ -363,6 +363,19 @@ server {
           proxy_set_header X-Forwarded-Proto https;
           proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
           proxy_pass http://localhost:80;
+
+            #added from lamp code
+            
+          include fastcgi_params;
+          # Remove X-Powered-By, which is an information leak
+          fastcgi_hide_header X-Powered-By;
+          fastcgi_buffers 16 16k;
+          fastcgi_buffer_size 32k;
+          fastcgi_param   SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+          fastcgi_pass unix:/run/php/php${PhpVer}-fpm.sock;
+          fastcgi_read_timeout 3600;
+          fastcgi_index index.php;
+          include fastcgi_params;
         }
 }
 EOF
