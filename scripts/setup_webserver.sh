@@ -378,7 +378,7 @@ EOF
     
    # Remove the default site. wordpress is the only site we want
    rm -f /etc/nginx/sites-enabled/default
-   
+
    if [ "$webServerType" = "apache" ]; then
      rm -f /etc/apache2/sites-enabled/000-default.conf
    fi
@@ -665,14 +665,6 @@ sub vcl_synth {
 }
 EOF
 
-service=apache2
-if [ "$webServerType" = "nginx" ]; then
-  if [ $(ps -ef | grep -v grep | grep $service | wc -l) > 0 ]; then
-       echo “Stop the $service!!!”
-       sudo systemctl stop $service
-	   sudo systemctl mask $service
-  fi
-fi
   # Restart Varnish
   systemctl daemon-reload
   service varnish restart
