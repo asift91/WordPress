@@ -67,7 +67,7 @@
                 "installObjectFsSwitch": "[parameters('wpCommon').installObjectFsSwitch]",
                 "installGdprPluginsSwitch": "[parameters('wpCommon').installGdprPluginsSwitch]",
                 "searchType": "[parameters('wpCommon').searchType]",
-                "azureSearchKey": "[parameters('azureSearchKey')]",
+                
                 "azureSearchNameHost": "[parameters('wpCommon').azureSearchNameHost]",
                 "tikaVmIP": "[parameters('wpCommon').tikaVmIP]",
                 "syslogServer": "[parameters('wpCommon').ctlrVmName]",
