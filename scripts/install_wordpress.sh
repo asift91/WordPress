@@ -140,7 +140,7 @@ set -ex
 
     # install the entire stack
     # passing php versions $phpVersion
-    apt-get -y --force-yes install nginx php$phpVersion-fpm php$phpVersion php$phpVersion-cli php$phpVersion-curl php$phpVersion-zip >> /tmp/apt5.log
+    apt-get -y --force-yes install varnish nginx php$phpVersion-fpm php$phpVersion php$phpVersion-cli php$phpVersion-curl php$phpVersion-zip >> /tmp/apt5.log
 
     # WordPress requirements
     apt-get -y update > /dev/null
@@ -201,6 +201,9 @@ set -ex
     if [ $fileServerType = "nfs-byo" ]; then
         chmod +rx /wordpress
     fi
+
+    # Configure varnish
+    config_varnish
 
     create_last_modified_time_update_script
     run_once_last_modified_time_update_script
