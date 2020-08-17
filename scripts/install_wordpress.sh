@@ -180,7 +180,7 @@ set -ex
     sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
     sudo apt-get update > /dev/null 2>&1
     #sudo apt-get install -y --fix-missing python-software-properties unzip
-    sudo apt-get -y installsoftware-properties-common
+    sudo apt-get install -y software-properties-common
     sudo apt-get install unzip
 
 
