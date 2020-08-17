@@ -45,7 +45,6 @@ echo $htmlLocalCopySwitch >> /tmp/vars.txt
 echo $phpVersion          >> /tmp/vars.txt
 
 # downloading and updating php packages from the repository 
-# sudo dpkg --configure –a
  sudo add-apt-repository ppa:ondrej/php -y > /dev/null 2>&1
  sudo apt-get update > /dev/null 2>&1
 
@@ -74,22 +73,23 @@ check_fileServerType_param $fileServerType
   
   # install the base stack
   # passing php versions $phpVersion
-  sudo apt-get -y install varnish php$phpVersion php$phpVersion-cli php$phpVersion-curl php$phpVersion-zip php-pear php$phpVersion-mbstring php$phpVersion-dev mcrypt
+  # sudo apt-get -y install varnish php$phpVersion php$phpVersion-cli php$phpVersion-curl php$phpVersion-zip php-pear php$phpVersion-mbstring php$phpVersion-dev mcrypt
+  sudo apt-get -y install nginx varnish php$phpVersion php$phpVersion-fpm php$phpVersion-cli php$phpVersion-curl php$phpVersion-zip php-pear php$phpVersion-mbstring php$phpVersion-dev mcrypt php$phpVersion-soap php$phpVersion-json php$phpVersion-redis php$phpVersion-bcmath php$phpVersion-gd php$phpVersion-pgsql php$phpVersion-mysql php$phpVersion-xmlrpc php$phpVersion-intl php$phpVersion-xml php$phpVersion-bz2
   
-  if [ "$webServerType" = "nginx" -o "$httpsTermination" = "VMSS" ]; then
-    sudo apt-get -y install nginx
-  fi
+  # if [ "$webServerType" = "nginx" -o "$httpsTermination" = "VMSS" ]; then
+  #   sudo apt-get -y install nginx
+  # fi
    
   if [ "$webServerType" = "apache" ]; then
     # install apache pacakges
     sudo apt-get -y install apache2 libapache2-mod-php
-  else
-    # for nginx-only option
-    sudo apt-get -y install php$phpVersion-fpm
+  # else
+  #   # for nginx-only option
+  #   sudo apt-get -y install php$phpVersion-fpm
   fi
    
   # WordPress requirements
-  sudo apt-get install -y graphviz aspell php$phpVersion-soap php$phpVersion-json php$phpVersion-redis php$phpVersion-bcmath php$phpVersion-gd php$phpVersion-pgsql php$phpVersion-mysql php$phpVersion-xmlrpc php$phpVersion-intl php$phpVersion-xml php$phpVersion-bz2
+  sudo apt-get install -y graphviz aspell
   if [ "$dbServerType" = "mssql" ]; then
     install_php_mssql_driver
     
@@ -370,9 +370,15 @@ EOF
    sed -i "s/;opcache.enable.*/opcache.enable = 1/" $PhpIni
    sed -i "s/;opcache.memory_consumption.*/opcache.memory_consumption = 256/" $PhpIni
    sed -i "s/;opcache.max_accelerated_files.*/opcache.max_accelerated_files = 8000/" $PhpIni
+   # Redis for sessions
+  if [ "$redisDeploySwitch" = "true" ]; then
+    sed -i "s/session.save_handler.*/session.save_handler = redis/" $PhpIni
+    sed -i "s/;session.save_path.*/session.save_path = \"tcp:\/\/$redisDns:6379?auth=$redisAuth\"/" $PhpIni
+  fi
     
    # Remove the default site. wordpress is the only site we want
    rm -f /etc/nginx/sites-enabled/default
+   
    if [ "$webServerType" = "apache" ]; then
      rm -f /etc/apache2/sites-enabled/000-default.conf
    fi
