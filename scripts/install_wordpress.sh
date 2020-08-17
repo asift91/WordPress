@@ -716,28 +716,6 @@ EOF
     systemctl daemon-reload
     service varnish restart
 
-    if [ $dbServerType = "mysql" ]; then
-        mysql -h $mysqlIP -u $mysqladminlogin -p${mysqladminpass} -e "CREATE DATABASE ${wordpressdbname} CHARACTER SET utf8;"
-        mysql -h $mysqlIP -u $mysqladminlogin -p${mysqladminpass} -e "GRANT ALL ON ${wordpressdbname}.* TO ${wordpressdbuser} IDENTIFIED BY '${wordpressdbpass}';"
-
-        echo "mysql -h $mysqlIP -u $mysqladminlogin -p${mysqladminpass} -e \"CREATE DATABASE ${wordpressdbname};\"" >> /tmp/debug
-        echo "mysql -h $mysqlIP -u $mysqladminlogin -p${mysqladminpass} -e \"GRANT ALL ON ${wordpressdbname}.* TO ${wordpressdbuser} IDENTIFIED BY '${wordpressdbpass}';\"" >> /tmp/debug
-    elif [ $dbServerType = "mssql" ]; then
-        /opt/mssql-tools/bin/sqlcmd -S $mssqlIP -U $mssqladminlogin -P ${mssqladminpass} -Q "CREATE DATABASE ${wordpressdbname} ( MAXSIZE = $mssqlDbSize, EDITION = '$mssqlDbEdition', SERVICE_OBJECTIVE = '$mssqlDbServiceObjectiveName' )"
-        /opt/mssql-tools/bin/sqlcmd -S $mssqlIP -U $mssqladminlogin -P ${mssqladminpass} -Q "CREATE LOGIN ${wordpressdbuser} with password = '${wordpressdbpass}'" 
-        /opt/mssql-tools/bin/sqlcmd -S $mssqlIP -U $mssqladminlogin -P ${mssqladminpass} -d ${wordpressdbname} -Q "CREATE USER ${wordpressdbuser} FROM LOGIN ${wordpressdbuser}"
-        /opt/mssql-tools/bin/sqlcmd -S $mssqlIP -U $mssqladminlogin -P ${mssqladminpass} -d ${wordpressdbname} -Q "exec sp_addrolemember 'db_owner','${wordpressdbuser}'" 
-        
-    else
-        # Create postgres db
-        echo "${postgresIP}:5432:postgres:${pgadminlogin}:${pgadminpass}" > /root/.pgpass
-        chmod 600 /root/.pgpass
-        psql -h $postgresIP -U $pgadminlogin -c "CREATE DATABASE ${wordpressdbname};" postgres
-        psql -h $postgresIP -U $pgadminlogin -c "CREATE USER ${wordpressdbuser} WITH PASSWORD '${wordpressdbpass}';" postgres
-        psql -h $postgresIP -U $pgadminlogin -c "GRANT ALL ON DATABASE ${wordpressdbname} TO ${wordpressdbuser};" postgres
-        rm -f /root/.pgpass
-    fi
-
     # Master config for syslog
     mkdir /var/log/sitelogs
     chown syslog.adm /var/log/sitelogs
@@ -751,19 +729,6 @@ local1.err   /var/log/sitelogs/wordpress/error.log
 local2.*   /var/log/sitelogs/wordpress/cron.log
 EOF
     service rsyslog restart
-
-    # Fire off wordpress setup
-    if [ "$httpsTermination" = "None" ]; then
-        siteProtocol="http"
-    else
-        siteProtocol="https"
-    fi
-    
-
-    echo -e "\n\rDone! Installation completed!\n\r"
-
-    
-    
 
     if [ "$dbServerType" = "postgres" ]; then
      # Get a new version of Postgres to match Azure version
