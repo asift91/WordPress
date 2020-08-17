@@ -1,0 +1,108 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "wpCommon": {
+            "metadata": {
+                "description": "Common WordPress values"
+            },
+            "type": "object"
+        },
+        "dbFQDN": {
+            "metadata": {
+                "description": "FQDN of the deployed SQL DB"
+            },
+            "type": "string"
+        },
+        "storageAccountName": {
+            "metadata": {
+                "description": "Storage account name from the storage account deployment."
+            },
+            "type": "string"
+        },
+        "storageAccountKey": {
+            "metadata": {
+                "description": "Storage account key from the storage account deployment."
+            },
+            "type": "string"
+        },
+        "redisKey": {
+            "metadata": {
+                "description": "Redis cache key from the redis deployment ('None' if redis is not selected). This just gets passed through to the controllersetup.json."
+            },
+            "type": "string"
+        },
+        "azureSearchKey": {
+            "metadata": {
+                "description": "Azure Search primary key from the Azure Search service deployment ('None' if Azure Search service is not selected)"
+            },
+            "type": "string"
+        }
+    },
+    "resources": [],
+    "variables": {
+        "documentation01": "This sub-template doesn't create any Azure resource, but just constructs/returns a JSON object that'll be injected to controller & VMSS VMs (through cloud-init) so that VM setup custom script can read/use, instead of receiving these as a long list of cmdline args",
+        "vmSetupParamsObj": {
+            "siteProfile": {
+                "sshUsername": "[parameters('wpCommon').sshUsername]",
+                "siteURL": "[parameters('wpCommon').siteURL]",
+                "httpsTermination": "[parameters('wpCommon').httpsTermination]",
+                "thumbprintSslCert": "[parameters('wpCommon').thumbprintSslCert]",
+                "thumbprintCaCert": "[parameters('wpCommon').thumbprintCaCert]"
+            },
+            "wordpressProfile": {
+                "version": "[parameters('wpCommon').wordpressVersion]",
+                "dbName": "[parameters('wpCommon').wordpressDbName]",
+                "dbUser": "[parameters('wpCommon').wordpressDbUser]",
+                "dbUserAzure": "[parameters('wpCommon').wordpressDbUserAzure]",
+                "dbPassword": "[parameters('wpCommon').wordpressDbPass]",
+                "adminPassword": "[parameters('wpCommon').wordpressAdminPass]",
+                "storageAccountName": "[parameters('storageAccountName')]",
+                "storageAccountKey": "[parameters('storageAccountKey')]",
+                "storageAccountType": "[parameters('wpCommon').storageAccountType]",
+                "redisDns": "[parameters('wpCommon').redisDns]",
+                "redisKey": "[parameters('redisKey')]",
+                "elasticVm1IP": "[parameters('wpCommon').elasticVm1IP]",
+                "installO365pluginsSwitch": "[parameters('wpCommon').installO365pluginsSwitch]",
+                "installObjectFsSwitch": "[parameters('wpCommon').installObjectFsSwitch]",
+                "installGdprPluginsSwitch": "[parameters('wpCommon').installGdprPluginsSwitch]",
+                "searchType": "[parameters('wpCommon').searchType]",
+                "azureSearchKey": "[parameters('azureSearchKey')]",
+                "azureSearchNameHost": "[parameters('wpCommon').azureSearchNameHost]",
+                "tikaVmIP": "[parameters('wpCommon').tikaVmIP]",
+                "syslogServer": "[parameters('wpCommon').ctlrVmName]",
+                "webServerType": "[parameters('wpCommon').webServerType]",
+                "htmlLocalCopySwitch": "[parameters('wpCommon').htmlLocalCopySwitch]"
+            },
+            "dbServerProfile": {
+                "type": "[parameters('wpCommon').dbServerType]",
+                "fqdn": "[parameters('dbFQDN')]",
+                "adminLogin": "[parameters('wpCommon').dbLogin]",
+                "adminLoginAzure": "[concat(parameters('wpCommon').dbLogin, '@', parameters('wpCommon').dbServerType, '-', parameters('wpCommon').resourcesPrefix)]",
+                "adminPassword": "[parameters('wpCommon').dbLoginPassword]",
+                "mssqlDbServiceObjectiveName": "[parameters('wpCommon').mssqlDbServiceObjectiveName]",
+                "mssqlDbEdition": "[parameters('wpCommon').mssqlDbEdition]",
+                "mssqlDbSize": "[parameters('wpCommon').mssqlDbSize]"
+            },
+            "fileServerProfile": {
+                "type": "[parameters('wpCommon').fileServerType]",
+                "nfsVmName": "[parameters('wpCommon').ctlrVmName]",
+                "glusterVmName": "[concat(parameters('wpCommon').gfsNameRoot, '0')]",
+                "glusterVolName": "data",
+                "nfsByoIpExportPath": "[parameters('wpCommon').nfsByoIpExportPath]",
+                "nfsHaLbIP": "[parameters('wpCommon').nfsHaLbIP]",
+                "nfsHaExportPath": "[parameters('wpCommon').nfsHaExportPath]",
+                "fileServerDiskSize": "[parameters('wpCommon').fileServerDiskSize]"
+            },
+            "phpProfile": {
+                "phpVersion": "[parameters('wpCommon').phpVersion]"
+            }
+        }
+    },
+    "outputs": {
+        "vmSetupParamsObj": {
+            "value": "[variables('vmSetupParamsObj')]",
+            "type": "object"
+        }
+    }
+}

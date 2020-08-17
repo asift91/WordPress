@@ -1,0 +1,151 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "wpCommon": {
+            "metadata": {
+                "description": "Common WordPress values"
+            },
+            "type": "object"
+        },
+        "subnetIdTika": {
+            "metadata": {
+                "description": "Azure resource ID of the subnet where this Tika VM is to be deployed"
+            },
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2017-10-01",
+            "location": "[parameters('wpCommon').location]",
+            "name": "[parameters('wpCommon').tikaNicName]",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipcfg-tika",
+                        "properties": {
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('wpCommon').tikaVmIP]",
+                            "subnet": {
+                                "id": "[parameters('subnetIdTika')]"
+                            }
+                        }
+                    }
+                ],
+                "enableAcceleratedNetworking": "[parameters('wpCommon').enableAccelNwForOtherVmsSwitch]"
+            },
+            "tags": {
+                "displayName": "Tika NIC"
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2017-03-30",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', parameters('wpCommon').tikaNicName)]"
+            ],
+            "location": "[parameters('wpCommon').location]",
+            "name": "[parameters('wpCommon').tikaVmName]",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('wpCommon').tikaVmSku]"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[variables('nicRef')]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "adminUsername": "[parameters('wpCommon').sshUsername]",
+                    "computerName": "[parameters('wpCommon').tikaVmName]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[concat('/home/', parameters('wpCommon').sshUsername, '/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('wpCommon').sshPublicKey]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "storageProfile": {
+                    "dataDisks": [],
+                    "imageReference": "[parameters('wpCommon').osType]",
+                    "osDisk": {
+                        "createOption": "FromImage",
+                        "managedDisk": {
+                            "storageAccountType": "[parameters('wpCommon').osDiskStorageType]"
+                        },
+                        "name": "[parameters('wpCommon').tikaVmName]"
+                    }
+                }
+            },
+            "tags": {
+                "displayName": "Tika Service Virtual Machine"
+            }
+        },
+        {
+            "condition": "[parameters('wpCommon').applyScriptsSwitch]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('wpCommon').tikaVmName)]"
+            ],
+            "name": "[concat(parameters('wpCommon').tikaVmName,'-ScriptProcessor')]",
+            "properties": {
+                "mode": "Incremental",
+                "parameters": {
+                    "wpCommon": {
+                        "value": "[parameters('wpCommon')]"
+                    }
+
+                },
+                "templateLink": {
+                    "uri": "[concat(parameters('wpCommon').baseTemplateUrl,'tikaconfig.json',parameters('wpCommon').artifactsSasToken)]"
+                }
+            }
+        },
+        {
+            "condition": "[parameters('wpCommon').azureBackupSwitch]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/',parameters('wpCommon').tikaVmName)]"
+            ],
+            "name": "[concat(parameters('wpCommon').tikaVmName,'-Backup')]",
+            "properties": {
+                "mode": "Incremental",
+                "parameters": {
+                    "wpCommon": {
+                        "value": "[parameters('wpCommon')]"
+                    },
+                    "vmName": {
+                        "value": "[parameters('wpCommon').tikaVmName]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "[concat(parameters('wpCommon').baseTemplateUrl,'recoveryservicesEnlist.json',parameters('wpCommon').artifactsSasToken)]"
+                }
+            }
+        }
+    ],
+    "variables": {
+        "documentation01": "This sub-template drives the tika service which is used as the access-point for WordPress VM's when using tika search or azure search",
+        "documentation02": "It expects certain values in the 'common' datastructure.",
+        "documentation03": "    vnetName               - name of the virtual network",
+        "documentation04": "    subnetTika             - name of subnet for tika (and vm scale set)",
+        "documentation06": "    tikaNicName            - name of the tika vm network interface",
+        "documentation11": "    tikaVmName             - name of the tika vm",
+        "documentation12": "    tikaVmIP               - IP of the tika vm",
+        "documentation15": "This sub-template calls other sub-templates",
+        "documentation16": "    tikaconfig             - conditionally applies post-deployment script on the VM",
+        "documentation17": "    recoveryservicesEnlist - conditionally enlists the VM into the backup regimen",
+        "nicRef": "[resourceId('Microsoft.Network/networkInterfaces', parameters('wpCommon').tikaNicName)]"
+    }
+}
