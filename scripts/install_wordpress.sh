@@ -207,47 +207,7 @@ set -ex
     mkdir -p /wordpress/html
     mkdir -p /wordpress/certs
     mkdir -p /wordpress/data
-
-    # install WordPress 
-  
-    function install_wordpress_application {
-        local dnsSite=$siteFQDN
-        local wpTitle=Azure-WordPress
-        local wpAdminUser=admin
-        local wpAdminPassword=$adminpass
-        local wpAdminEmail=admin@$dnsSite
-        local wpPath=/wordpress/html/wordpress
-        local wpDbUserId=$wordpressdbuser
-        local wpDbUserPass=$wordpressdbpass
-        local applicationDbName=wordpress
-        local wpVersion=$wordpressVersion
-        
-
-        # Creates a Database for CMS application
-        create_database $dbIP $dbadminloginazure $dbadminpass $applicationDbName $wpDbUserId $wpDbUserPass
-        # Download the WordPress application compressed file
-        download_wordpress $dnsSite $wpVersion
-        # Links the data content folder to shared folder.. /azlamp/data
-        linking_data_location 
-        # Creates a wp-config file for WordPress
-        create_wpconfig $dbIP $applicationDbName $dbadminloginazure $dbadminpass $dnsSite
-        # Installs WP-CLI tool
-        install_wp_cli
-        # Install WordPress by using wp-cli commands
-        install_wordpress $dnsSite $wpTitle $wpAdminUser $wpAdminPassword $wpAdminEmail $wpPath
-        # Install WooCommerce plug-in
-        install_plugins $wpPath
-        # Generates the openSSL certificates
-        generate_sslcerts $dnsSite
-        # Generate the text file
-        generate_text_file $dnsSite $wpAdminUser $wpAdminPassword $dbIP $wpDbUserId $wpDbUserPass $sshUsername
-    }
-
-    install_wordpress_application
     
-    # chmod 755 /tmp/setup-wordpress.sh
-    # /tmp/setup-wordpress.sh >> /tmp/setupwordpress.log
-
     # Build nginx config
     cat <<EOF > /etc/nginx/nginx.conf
 user www-data;
@@ -772,6 +732,39 @@ EOF
     # But now we need to adjust the data and the certs directory ownerships, and the permission for the generated config.php
     sudo chown -R www-data.www-data /wordpress/data /wordpress/certs
     
+    function install_wordpress_application {
+        local dnsSite=$siteFQDN
+        local wpTitle=Azure-WordPress
+        local wpAdminUser=admin
+        local wpAdminPassword=$adminpass
+        local wpAdminEmail=admin@$dnsSite
+        local wpPath=/wordpress/html/wordpress
+        local wpDbUserId=$wordpressdbuser
+        local wpDbUserPass=$wordpressdbpass
+        local applicationDbName=wordpress
+        local wpVersion=$wordpressVersion
+        
+        # Creates a Database for CMS application
+        create_database $dbIP $dbadminloginazure $dbadminpass $applicationDbName $wpDbUserId $wpDbUserPass
+        # Download the WordPress application compressed file
+        download_wordpress $dnsSite $wpVersion
+        # Links the data content folder to shared folder.. /azlamp/data
+        linking_data_location 
+        # Creates a wp-config file for WordPress
+        create_wpconfig $dbIP $applicationDbName $dbadminloginazure $dbadminpass $dnsSite
+        # Installs WP-CLI tool
+        install_wp_cli
+        # Install WordPress by using wp-cli commands
+        install_wordpress $dnsSite $wpTitle $wpAdminUser $wpAdminPassword $wpAdminEmail $wpPath
+        # Install WooCommerce plug-in
+        install_plugins $wpPath
+        # Generates the openSSL certificates
+        generate_sslcerts $dnsSite
+        # Generate the text file
+        generate_text_file $dnsSite $wpAdminUser $wpAdminPassword $dbIP $wpDbUserId $wpDbUserPass $sshUsername
+    }
+
+    install_wordpress_application
 
     # chmod /wordpress for Azure NetApp Files (its default is 770!)
     if [ $fileServerType = "nfs-byo" ]; then
