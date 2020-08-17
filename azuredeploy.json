@@ -865,7 +865,6 @@
                 "Microsoft.Resources/deployments/networkTemplate",
                 "Microsoft.Resources/deployments/dbTemplate",
                 "Microsoft.Resources/deployments/redisTemplate",
-                "Microsoft.Resources/deployments/searchTemplate",
                 "Microsoft.Resources/deployments/storageAccountTemplate"
             ],
             "name": "vmSetupParamsTemplate",
@@ -904,7 +903,6 @@
                 "Microsoft.Resources/deployments/networkTemplate",
                 "Microsoft.Resources/deployments/dbTemplate",
                 "Microsoft.Resources/deployments/redisTemplate",
-                "Microsoft.Resources/deployments/searchTemplate",
                 "Microsoft.Resources/deployments/storageAccountTemplate"
             ],
             "name": "controllerTemplate",
