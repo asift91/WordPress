@@ -96,9 +96,9 @@ To set up the build process, you will need:
 * Access to an installed instance of the Azure CLI
 * A SSH keypair
 
-The Travis CI process uses the *Azure CLI Service Principal* login method to authenticate against Azure. The documentation for logging in via a Service Principal can be found here: https://docs.microsoft.com/en-us/cli/azure/authenticate-azure-cli?view=azure-cli-latest#logging-in-with-a-service-principal
+The Travis CI process uses the *Azure CLI Service Principal* login method to authenticate against Azure. The documentation for logging in via a Service Principal can be found [here](https://docs.microsoft.com/en-us/cli/azure/authenticate-azure-cli?view=azure-cli-latest#logging-in-with-a-service-principal)
 
-Before you can log in using the Service Principal process you need to create a *Service Principal*. The documentation to create a Service Principal login can be found here: https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli?view=azure-cli-latest
+Before you can log in using the Service Principal process you need to create a *Service Principal*. The documentation to create a Service Principal login can be found [here](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli?view=azure-cli-latest)
 
 When a Service Principal is created using the Azure CLI a JSON response is returned containing:
 * **name** - This is the Service Principal username.
@@ -109,7 +109,7 @@ You will need these three above values to have Travis and Azure deploy and test 
 
 The next step is to take the above values returned by the Service Principal creation and use them to define *environment variables* in Travis CI.
 
-The following link shows how to set up per repository environment variables in Travis CI: https://docs.travis-ci.com/user/environment-variables/#Defining-Variables-in-Repository-Settings Using this documention set up the following three *hidden* environment variables in Travis CI for your fork of this repository.
+To set up per repository environment variables in Travis CI: [click here]( https://docs.travis-ci.com/user/environment-variables/#Defining-Variables-in-Repository-Settings) Using this documention set up the following three *hidden* environment variables in Travis CI for your fork of this repository.
 
 * **SPNAME** - The value of the *name* parameter returned by the Service Principal create proccess.
 * **SPPASSWORD** - The value of the *password* parameter returned by the Service Principal create proccess.
@@ -132,7 +132,7 @@ Once the environment variables are defined, Travis CI will run the template vali
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+the rights to use your contribution. For details, visit [here]( https://cla.opensource.microsoft.com).
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
